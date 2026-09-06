@@ -21,10 +21,9 @@
         header { background: #12131a; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); }
         h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.8rem; margin: 0; text-shadow: 0 0 10px rgba(0,255,204,0.4); }
 
-        .screen { display: none; padding: 20px; min-height: calc(100vh - 130px); padding-bottom: 90px; }
+        .screen { display: none; padding: 20px; min-height: calc(100vh - 130px); padding-bottom: 90px; box-sizing: border-box; }
         .screen.active { display: block; }
 
-        /* Style Kreatora i Szafy */
         .card { background: var(--panel-bg); border: 1px solid #2a2e3d; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
         .avatar-box { width: 100px; height: 100px; background: #202330; border: 3px solid var(--accent-pink); border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 0 15px var(--accent-pink); }
         
@@ -35,21 +34,17 @@
         .btn:hover { background: var(--accent-pink); color: #fff; box-shadow: 0 0 15px var(--accent-pink); }
         .btn-secondary { background: #2a2e3d; color: #fff; margin-top: 8px; }
 
-        /* Ekwipunek i Szafa */
         .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
         .item-card { background: #202330; border: 1px solid #3b4259; padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; }
         .item-card.equipped { border-color: var(--accent-green); background: rgba(0,255,204,0.05); }
         .item-card h4 { margin: 5px 0 0 0; font-size: 0.8rem; font-family: 'Press Start 2P'; color: var(--accent-green); }
 
-        /* Mapa */
-        #map { height: 60vh; width: 100%; border-radius: 12px; border: 1px solid #2a2e3d; margin-bottom: 15px; }
+        #map { height: 60vh; width: 100%; border-radius: 12px; border: 1px solid #2a2e3d; margin-bottom: 15px; z-index: 1; }
 
-        /* Tablica Ogłoszeń (Praca / Remonty / Sąsiedzi) */
         .quest-item { background: #202330; border-left: 4px solid var(--accent-pink); padding: 12px; border-radius: 6px; margin-bottom: 10px; }
         .quest-item h4 { margin: 0 0 5px 0; font-size: 0.85rem; color: #fff; }
         .quest-item p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
 
-        /* Nawigacja dolna */
         nav { display: flex; background: #12131a; border-top: 2px solid #2a2e3d; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; }
         nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 14px 5px; font-family: 'Press Start 2P'; font-size: 0.45rem; cursor: pointer; text-align: center; }
         nav button.active { color: var(--accent-green); background: #1a1c26; border-top: 2px solid var(--accent-green); }
@@ -65,7 +60,7 @@
     <div id="screen-profile" class="screen active">
         <div class="card">
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-pink); margin-top:0;">TWÓJ AWATAR</h3>
-            <div class="avatar-box" id="avatarDisplay">🧑‍💼</div>
+            <div class="avatar-box" id="avatarDisplay">👷‍♂️</div>
             
             <label>Pseudonim w GeoVerse</label>
             <input type="text" id="inputName" value="Krzysztof Budowlaniec" />
@@ -73,21 +68,20 @@
             <label>Wybierz bazę postaci</label>
             <select id="inputAvatarType" onchange="updateAvatarPreview()">
                 <option value="🧑‍💼">Profesjonalista / Inwestor</option>
-                <option value="👷‍♂️">Fachowiec / Remonty (Castorama Team)</option>
+                <option value="👷‍♂️" selected>Fachowiec / Remonty (Castorama Team)</option>
                 <option value="🏃‍♀️">Aktywny Mieszkaniec</option>
             </select>
 
-            <button class="btn" onclick="saveProfile()">ZAPISZ PROFIL</button>
+            <button class="btn" onclick="saveProfileAndGoToMap()">ZAPISZ I WEJDŹ NA MAPĘ</button>
         </div>
     </div>
 
     <div id="screen-wardrobe" class="screen">
         <div class="card">
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">SZAFA / SKRZYNIA UBRAŃ</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Ubrania kupione wczoraj w galerii Manufaktura Łódź lub w Castoramie. Załóż je na swój awatar!</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Ubrania z galerii Manufaktura Łódź lub Castorama. Załóż je na swój awatar!</p>
             
-            <div class="inventory-grid" id="inventoryContainer">
-                </div>
+            <div class="inventory-grid" id="inventoryContainer"></div>
         </div>
         <button class="btn btn-secondary" onclick="simulateNewShopping()">+ ZESKANUJ NOWY ZAKUP (PARAGON QR)</button>
     </div>
@@ -95,29 +89,29 @@
     <div id="screen-map" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
             <span id="mapUserLabel" style="font-size:0.75rem; color:var(--accent-green); font-family:'Press Start 2P';">Profil: Gracz</span>
-            <span style="font-size:0.7rem; color:var(--accent-pink);">Zasięg: Łódź / Okolica</span>
+            <span style="font-size:0.7rem; color:var(--accent-pink);">Zasięg: Łódź / Polska</span>
         </div>
         <div id="map"></div>
-        <p style="font-size: 0.75rem; text-align:center; color: var(--text-muted);">Widisz innych graczy i punkty usługowe w czasie rzeczywistym na drodze.</p>
+        <p style="font-size: 0.75rem; text-align:center; color: var(--text-muted);">Widzisz siebie i innych użytkowników w czasie rzeczywistym.</p>
     </div>
 
     <div id="screen-quests" class="screen">
         <div class="card">
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">LOKALNY RYNEK ZLECEŃ</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Pomoc sąsiedzka, zlecenia remontowe, szukanie ekipy w drodze z Castoramy.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Pomoc sąsiedzka, remonty, zlecenia w drodze.</p>
             
             <div id="questList">
                 <div class="quest-item">
                     <h4>Remont łazienki - ul. Piotrkowska</h4>
-                    <p>Szukam kogoś do ułożenia płytek i hydrauliki. Materiały kupione w Castoramie! 💰 2500 PLN</p>
+                    <p>Szukam kogoś do ułożenia płytek i hydrauliki. Materiały z Castoramy! 💰 2500 PLN</p>
                 </div>
                 <div class="quest-item">
                     <h4>Pomoc wniesienia kanapy z Manufaktury</h4>
-                    <p>Potrzebna jedna osoba na 15 minut dzisiaj po południu. 💰 80 PLN</p>
+                    <p>Potrzebna jedna osoba na dzisiaj po południu. 💰 80 PLN</p>
                 </div>
             </div>
         </div>
-        <button class="btn" onclick="addNewQuestPrompt()">+ DODAJ OGŁOSZENIE / ZLECENIE</button>
+        <button class="btn" onclick="addNewQuestPrompt()">+ DODAJ ZLECENIE</button>
     </div>
 
     <nav>
@@ -136,11 +130,10 @@
             equippedOutfit: "Kombinezon Roboczy (Castorama)"
         };
 
-        // Magazyn ubrań gracza (zdobyte z realnych zakupów)
         let playerInventory = [
-            { id: 1, name: "Kombinezon Roboczy (Castorama)", icon: "🦺", category: "Praca" },
-            { id: 2, name: "Kurtka skórzana (Manufaktura Łódź)", icon: "🧥", category: "Moda" },
-            { id: 3, name: "Sneakersy Air (Deichmann)", icon: "👟", category: "Buty" }
+            { id: 1, name: "Kombinezon Roboczy (Castorama)", icon: "🦺" },
+            { id: 2, name: "Kurtka skórzana (Manufaktura Łódź)", icon: "🧥" },
+            { id: 3, name: "Sneakersy Air (Deichmann)", icon: "👟" }
         ];
 
         function switchTab(screenId, btnElement) {
@@ -148,11 +141,11 @@
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
             document.getElementById(screenId).classList.add('active');
-            btnElement.classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
 
             if(screenId === 'screen-wardrobe') renderInventory();
             if(screenId === 'screen-map') {
-                setTimeout(() => { initMap(); }, 200);
+                setTimeout(() => { initMap(); }, 150);
             }
         }
 
@@ -161,11 +154,15 @@
             document.getElementById('avatarDisplay').innerText = type;
         }
 
-        function saveProfile() {
+        function saveProfileAndGoToMap() {
             userData.name = document.getElementById('inputName').value;
             userData.avatarIcon = document.getElementById('inputAvatarType').value;
-            alert("Profil i awatar zostały zaktualizowane w świecie GeoVerse!");
+            
             document.getElementById('mapUserLabel').innerText = `${userData.avatarIcon}${userData.name}`;
+            
+            // Przełącz na zakładkę mapy i aktywuj przycisk w menu dolnym
+            let mapBtn = document.getElementById('nav-map');
+            switchTab('screen-map', mapBtn);
         }
 
         function renderInventory() {
@@ -186,22 +183,12 @@
         function equipItem(itemName) {
             userData.equippedOutfit = itemName;
             renderInventory();
-            alert(`Awatar założył: ${itemName}! Zmiana jest widoczna na mapie dla wszystkich przechodniów.`);
+            alert(`Awatar założył: ${itemName}! Zmiana widoczna na mapie.`);
         }
 
         function simulateNewShopping() {
-            let newItemName = prompt("Wpisz nazwę rzeczy kupionej w galerii (np. Nowa bluza z H&M):", "Bluza H&M");
+            let newItemName = prompt("Wpisz zakup (np. Nowa bluza H&M):", "Bluza H&M");
             if(newItemName) {
-                playerInventory.push({ id: Date.now(), name: newItemName, icon: "🛍️", category: "Moda" });
+                playerInventory.push({ id: Date.now(), name: newItemName, icon: "🛍️" });
                 renderInventory();
-                alert(`Zeskanowano paragon! Dodano do szafy: ${newItemName}`);
-            }
-        }
-
-        function addNewQuestPrompt() {
-            let qTitle = prompt("Tytuł zlecenia / ogłoszenia (np. Naprawa kranu, szukam ekipy):");
-            let qDesc = prompt("Opis i budżet (np. ul. Zachodnia, płace 300zł):");
-            if(qTitle && qDesc) {
-                let list = document.getElementById('questList');
-                list.innerHTML = `
-                    <div
+                alert(`Zeskanowano paragon
