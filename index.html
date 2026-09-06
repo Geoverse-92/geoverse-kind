@@ -57,6 +57,7 @@
         <span style="font-size: 0.6rem; color: var(--accent-green); font-family: 'Press Start 2P';">BETA</span>
     </header>
 
+    <!-- 1. KREATOR POSTACI -->
     <div id="screen-profile" class="screen active">
         <div class="card">
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-pink); margin-top:0;">TWÓJ AWATAR</h3>
@@ -72,19 +73,21 @@
                 <option value="🏃‍♀️">Aktywny Mieszkaniec</option>
             </select>
 
-            <button class="btn" onclick="goToMap()">ZAPISZ I WEJDŹ NA MAPĘ</button>
+            <button class="btn" id="saveBtn">ZAPISZ I WEJDŹ NA MAPĘ</button>
         </div>
     </div>
 
+    <!-- 2. SZAFA -->
     <div id="screen-wardrobe" class="screen">
         <div class="card">
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">SZAFA / UBRANIA</h3>
             <p style="font-size: 0.8rem; color: var(--text-muted);">Ciuchy z Manufaktury i Castoramy.</p>
             <div class="inventory-grid" id="inventoryContainer"></div>
         </div>
-        <button class="btn btn-secondary" onclick="scanShopping()">+ ZESKANUJ NOWY ZAKUP</button>
+        <button class="btn btn-secondary" id="scanBtn">+ ZESKANUJ NOWY ZAKUP</button>
     </div>
 
+    <!-- 3. MAPA -->
     <div id="screen-map" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
             <span id="mapUserLabel" style="font-size:0.75rem; color:var(--accent-green); font-family:'Press Start 2P';">Gracz</span>
@@ -93,6 +96,7 @@
         <div id="map"></div>
     </div>
 
+    <!-- 4. ZLECENIA -->
     <div id="screen-quests" class="screen">
         <div class="card">
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">ZLECENIA</h3>
@@ -103,14 +107,15 @@
                 </div>
             </div>
         </div>
-        <button class="btn" onclick="addQuest()">+ DODAJ ZLECENIE</button>
+        <button class="btn" id="addQuestBtn">+ DODAJ ZLECENIE</button>
     </div>
 
+    <!-- DOLNE MENU -->
     <nav>
-        <button id="btn-profile" class="active" onclick="switchTab('screen-profile', this)">POSTAĆ</button>
-        <button id="btn-wardrobe" onclick="switchTab('screen-wardrobe', this)">SZAFA</button>
-        <button id="btn-map" onclick="switchTab('screen-map', this)">MAPA</button>
-        <button id="btn-quests" onclick="switchTab('screen-quests', this)">ZLECENIA</button>
+        <button id="nav-profile" class="active">POSTAĆ</button>
+        <button id="nav-wardrobe">SZAFA</button>
+        <button id="nav-map">MAPA</button>
+        <button id="nav-quests">ZLECENIA</button>
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -128,25 +133,124 @@
             { name: "Sneakersy Air (Deichmann)", icon: "👟" }
         ];
 
-        // Wybór ikony awatara w locie
-        document.getElementById('inputAvatarType').addEventListener('change', function() {
-            document.getElementById('avatarDisplay').innerText = this.value;
-        });
+        function switchTab(screenId) {
+            try {
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
-        function switchTab(screenId, btnElement) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+                document.getElementById(screenId).classList.add('active');
 
-            document.getElementById(screenId).classList.add('active');
-            if(btnElement) btnElement.classList.add('active');
-
-            if(screenId === 'screen-wardrobe') renderInventory();
-            if(screenId === 'screen-map') {
-                // Małe opóźnienie żeby kontener mapy zdążył się wyrenderować
-                setTimeout(initMap, 100);
+                if (screenId === 'screen-profile') document.getElementById('nav-profile').classList.add('active');
+                if (screenId === 'screen-wardrobe') {
+                    document.getElementById('nav-wardrobe').classList.add('active');
+                    renderInventory();
+                }
+                if (screenId === 'screen-map') {
+                    document.getElementById('nav-map').classList.add('active');
+                    setTimeout(initMap, 150);
+                }
+                if (screenId === 'screen-quests') document.getElementById('nav-quests').classList.add('active');
+            } catch (e) {
+                console.error("Błąd przełączania zakładki:", e);
             }
         }
 
-        function goToMap() {
-            userData.name = document.
-        
+        function initMap() {
+            try {
+                if (!mapInstance) {
+                    mapInstance = L.map('map').setView([51.7592, 19.4560], 15);
+                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                        maxZoom: 19,
+                        attribution: '&copy; OpenStreetMap'
+                    }).addTo(mapInstance);
+
+                    L.marker([51.7610, 19.4520]).addTo(mapInstance).bindPopup("<b>Anna (Architekt)</b><br>Materiały z Castoramy");
+                    L.marker([51.7570, 19.4600]).addTo(mapInstance).bindPopup("<b>Marek (Fachowiec)</b><br>Wolne terminy remontów");
+
+                    if (navigator.geolocation) {
+                        navigator.geolocation.getCurrentPosition(function(pos) {
+                            let lat = pos.coords.latitude;
+                            let lon = pos.coords.longitude;
+                            mapInstance.setView([lat, lon], 16);
+                            L.marker([lat, lon]).addTo(mapInstance).bindPopup(`<b>JA: ${userData.icon} ${userData.name}</b><br>Ubiór: ${userData.outfit}`).openPopup();
+                        }, function() {
+                            L.marker([51.7592, 19.4560]).addTo(mapInstance).bindPopup(`<b>JA: ${userData.icon} ${userData.name}</b><br>Ubiór: ${userData.outfit}`).openPopup();
+                        });
+                    }
+                } else {
+                    mapInstance.invalidateSize();
+                }
+            } catch(e) {
+                console.log("Mapa załadowana awaryjnie", e);
+            }
+        }
+
+        function renderInventory() {
+            let container = document.getElementById('inventoryContainer');
+            if(!container) return;
+            container.innerHTML = "";
+            inventory.forEach(item => {
+                let equipped = (userData.outfit === item.name);
+                container.innerHTML += `
+                    <div class="item-card ${equipped ? 'equipped' : ''}" onclick="setOutfit('${item.name}')">
+                        <div style="font-size: 2rem;">${item.icon}</div>
+                        <h4>${item.name}</h4>
+                        <p style="font-size:0.7rem; color:#888; margin:5px 0 0 0;">${equipped ? '★ ZAŁOŻONE' : 'Załóż'}</p>
+                    </div>
+                `;
+            });
+        }
+
+        window.setOutfit = function(name) {
+            userData.outfit = name;
+            renderInventory();
+            alert(`Awatar założył: ${name}`);
+        }
+
+        // Inicjalizacja po załadowaniu strony
+        document.addEventListener("DOMContentLoaded", function() {
+            // Zmiana ikony awatara w selectie
+            document.getElementById('inputAvatarType').addEventListener('change', function() {
+                document.getElementById('avatarDisplay').innerText = this.value;
+            });
+
+            // Przycisk zapisywania profilu
+            document.getElementById('saveBtn').addEventListener('click', function() {
+                userData.name = document.getElementById('inputName').value;
+                userData.icon = document.getElementById('inputAvatarType').value;
+                let label = document.getElementById('mapUserLabel');
+                if(label) label.innerText = `${userData.icon} ${userData.name}`;
+                
+                switchTab('screen-map');
+            });
+
+            // Skanowanie zakupu
+            document.getElementById('scanBtn').addEventListener('click', function() {
+                let item = prompt("Nazwa zakupionej rzeczy:", "Nowe buty");
+                if(item) {
+                    inventory.push({ name: item, icon: "🛍️" });
+                    renderInventory();
+                    alert("Dodano do szafy!");
+                }
+            });
+
+            // Dodawanie zlecenia
+            document.getElementById('addQuestBtn').addEventListener('click', function() {
+                let title = prompt("Tytuł zlecenia:");
+                let desc = prompt("Opis:");
+                if(title) {
+                    let list = document.getElementById('questList');
+                    list.innerHTML = `<div class="quest-item"><h4>${title}</h4><p>${desc}</p></div>` + list.innerHTML;
+                    alert("Dodano ogłoszenie!");
+                }
+            });
+
+            // Dolne menu nawigacyjne
+            document.getElementById('nav-profile').addEventListener('click', () => switchTab('screen-profile'));
+            document.getElementById('nav-wardrobe').addEventListener('click', () => switchTab('screen-wardrobe'));
+            document.getElementById('nav-map').addEventListener('click', () => switchTab('screen-map'));
+            document.getElementById('nav-quests').addEventListener('click', () => switchTab('screen-quests'));
+        });
+    </script>
+</body>
+</html>
