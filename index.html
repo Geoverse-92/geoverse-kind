@@ -3,186 +3,210 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoVerse Beta</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <title>GeoVerse - Phygital MMO</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400;700&display=swap');
 
         :root {
-            --bg-dark: #0f1015;
-            --panel-bg: #161821;
+            --bg-dark: #090a0f;
+            --panel-bg: #13151f;
             --accent-green: #00ffcc;
             --accent-pink: #ff00ff;
+            --accent-gold: #ffd700;
             --text-main: #ffffff;
-            --text-muted: #94a3b8;
+            --text-muted: #8b9bb4;
         }
 
         body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Roboto', sans-serif; overflow-x: hidden; }
-        header { background: #12131a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); }
-        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.8rem; margin: 0; }
+        
+        /* HEADER MMORPG STYLE */
+        header { background: #0d0e14; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); box-shadow: 0 0 15px rgba(0,255,204,0.2); }
+        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.7rem; margin: 0; text-shadow: 0 0 8px rgba(0,255,204,0.5); }
+        .player-stats-mini { font-family: 'Press Start 2P', cursive; font-size: 0.45rem; color: var(--accent-gold); display: flex; gap: 10px; }
 
-        .screen { display: none; padding: 20px; padding-bottom: 100px; box-sizing: border-box; }
+        .screen { display: none; padding: 15px; padding-bottom: 90px; box-sizing: border-box; }
         .screen.active { display: block; }
 
-        .card { background: var(--panel-bg); border: 1px solid #2a2e3d; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
-        .avatar-box { width: 100px; height: 100px; background: #202330; border: 3px solid var(--accent-pink); border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
+        .card { background: var(--panel-bg); border: 1px solid #25293d; border-radius: 12px; padding: 15px; margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
         
-        label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-family: 'Press Start 2P'; }
-        input, select { width: 100%; background: #0f1015; border: 1px solid #33384f; color: #fff; padding: 12px; border-radius: 8px; font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; }
+        /* AVATAR SIMS STYLE */
+        .avatar-container { display: flex; align-items: center; gap: 15px; margin-bottom: 15px; }
+        .avatar-box { width: 80px; height: 80px; background: #1a1d2e; border: 3px solid var(--accent-pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 0 15px rgba(255,0,255,0.4); flex-shrink: 0; }
+        .avatar-info h3 { margin: 0 0 5px 0; font-size: 0.9rem; font-family: 'Press Start 2P'; color: #fff; }
+        .avatar-info p { margin: 0; font-size: 0.75rem; color: var(--text-muted); }
 
-        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 15px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; }
-        .btn:hover { background: var(--accent-pink); color: #fff; }
-        .btn-secondary { background: #2a2e3d; color: #fff; margin-top: 8px; }
+        label { display: block; font-size: 0.7rem; color: var(--text-muted); margin-bottom: 6px; font-family: 'Press Start 2P'; }
+        input, select { width: 100%; background: #090a0f; border: 1px solid #2d334d; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 12px; box-sizing: border-box; }
 
+        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 14px; font-family: 'Press Start 2P', cursive; font-size: 0.65rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 0 12px rgba(0,255,204,0.3); transition: 0.2s; }
+        .btn:active { transform: scale(0.98); }
+        .btn-secondary { background: #25293d; color: #fff; margin-top: 8px; border: 1px solid #3d466e; }
+
+        /* INVENTORY / WARDROBE GRID */
         .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
-        .item-card { background: #202330; border: 1px solid #3b4259; padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; }
-        .item-card.equipped { border-color: var(--accent-green); background: rgba(0,255,204,0.05); }
-        .item-card h4 { margin: 5px 0 0 0; font-size: 0.8rem; font-family: 'Press Start 2P'; color: var(--accent-green); }
+        .item-card { background: #1a1d2e; border: 1px solid #2d334d; padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
+        .item-card.equipped { border-color: var(--accent-green); background: rgba(0,255,204,0.05); box-shadow: 0 0 10px rgba(0,255,204,0.1); }
+        .item-card h4 { margin: 8px 0 3px 0; font-size: 0.75rem; font-family: 'Press Start 2P'; color: var(--accent-green); }
 
-        #map { height: 55vh; width: 100%; border-radius: 12px; border: 1px solid #2a2e3d; margin-bottom: 15px; }
+        /* MAP POKEMON GO STYLE */
+        #map-view { height: 50vh; width: 100%; background: radial-gradient(circle, #1a1e2e 0%, #090a0f 100%); border-radius: 12px; border: 2px solid var(--accent-green); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; margin-bottom: 12px; box-shadow: inset 0 0 20px rgba(0,255,204,0.1); }
+        .radar-wave { position: absolute; width: 150px; height: 150px; border: 1px dashed rgba(0,255,204,0.3); border-radius: 50%; animation: pulse 3s infinite linear; }
+        @keyframes pulse { 0% { transform: scale(0.5); opacity: 1; } 100% { transform: scale(2.2); opacity: 0; } }
+        
+        .map-pin { position: absolute; background: #13151f; border: 2px solid var(--accent-pink); padding: 6px 10px; border-radius: 8px; font-size: 0.7rem; font-family: 'Press Start 2P'; box-shadow: 0 0 12px rgba(255,0,255,0.4); cursor: pointer; white-space: nowrap; }
+        .map-pin.player { border-color: var(--accent-green); z-index: 10; font-size: 1rem; padding: 8px; background: #0d0e14; }
 
-        .quest-item { background: #202330; border-left: 4px solid var(--accent-pink); padding: 12px; border-radius: 6px; margin-bottom: 10px; }
-        .quest-item h4 { margin: 0 0 5px 0; font-size: 0.85rem; color: #fff; }
-        .quest-item p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
+        /* QUESTS / TIBIA MARKET */
+        .quest-item { background: #1a1d2e; border-left: 4px solid var(--accent-gold); padding: 12px; border-radius: 6px; margin-bottom: 10px; border: 1px solid #2d334d; }
+        .quest-item h4 { margin: 0 0 5px 0; font-size: 0.8rem; color: var(--accent-gold); font-family: 'Press Start 2P'; }
+        .quest-item p { margin: 0 0 8px 0; font-size: 0.75rem; color: var(--text-muted); }
 
-        nav { display: flex; background: #12131a; border-top: 2px solid #2a2e3d; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; }
-        nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 15px 5px; font-family: 'Press Start 2P'; font-size: 0.45rem; cursor: pointer; text-align: center; }
-        nav button.active { color: var(--accent-green); background: #1a1c26; border-top: 2px solid var(--accent-green); }
+        /* NAVIGATION BAR */
+        nav { display: flex; background: #0d0e14; border-top: 2px solid #25293d; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; }
+        nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 14px 2px; font-family: 'Press Start 2P'; font-size: 0.4rem; cursor: pointer; text-align: center; transition: 0.2s; }
+        nav button.active { color: var(--accent-green); background: #161926; border-top: 2px solid var(--accent-green); text-shadow: 0 0 5px rgba(0,255,204,0.4); }
     </style>
 </head>
 <body>
 
     <header>
         <h1>GEOVERSE</h1>
-        <span style="font-size: 0.6rem; color: var(--accent-green); font-family: 'Press Start 2P';">BETA</span>
+        <div class="player-stats-mini">
+            <span>lvl <span id="statLvl">1</span></span>
+            <span>💰 <span id="statGold">250</span> zł</span>
+        </div>
     </header>
 
-    <!-- 1. KREATOR POSTACI -->
+    <!-- 1. POSTAĆ (SIMS STYLE) -->
     <div id="screen-profile" class="screen active">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-pink); margin-top:0;">TWÓJ AWATAR</h3>
-            <div class="avatar-box" id="avatarDisplay">👷‍♂️</div>
+            <div class="avatar-container">
+                <div class="avatar-box" id="avatarDisplay">👷‍♂️</div>
+                <div class="avatar-info">
+                    <h3 id="profileNameDisplay">Krzysztof</h3>
+                    <p id="profileClassDisplay">Fachowiec (Castorama Team)</p>
+                </div>
+            </div>
             
-            <label>Pseudonim</label>
+            <label>Pseudonim w Świecie</label>
             <input type="text" id="inputName" value="Krzysztof Budowlaniec" />
 
-            <label>Wybierz postać</label>
-            <select id="inputAvatarType">
-                <option value="🧑‍💼">Profesjonalista / Inwestor</option>
-                <option value="👷‍♂️" selected>Fachowiec (Castorama)</option>
-                <option value="🏃‍♀️">Aktywny Mieszkaniec</option>
+            <label>Wybierz Profesję / Klasę</label>
+            <select id="inputAvatarType" onchange="updateAvatarBase()">
+                <option value="🧑‍💼|Inwestor Korporacyjny|👔">Inwestor Korporacyjny</option>
+                <option value="👷‍♂️|Fachowiec (Castorama)|🦺" selected>Fachowiec / Remonty</option>
+                <option value="🏃‍♀️|Mieszkaniec Miejski|👟">Aktywny Mieszkaniec</option>
             </select>
 
-            <button class="btn" id="saveBtn">ZAPISZ I WEJDŹ NA MAPĘ</button>
+            <button class="btn" onclick="saveAndEnterWorld()">ZAPISZ I WEJDŹ DO GRY</button>
+        </div>
+
+        <div class="card">
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.75rem; color: var(--accent-gold); margin-top:0;">AKTYWNE BUFFY</h3>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0;">⚡ Premia Castoramy: +15% szybsze budowanie baz w strefie Łodzi.</p>
         </div>
     </div>
 
-    <!-- 2. SZAFA -->
+    <!-- 2. SZAFA I EKWIPUNEK -->
     <div id="screen-wardrobe" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">SZAFA / UBRANIA</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Ciuchy z Manufaktury i Castoramy.</p>
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.75rem; color: var(--accent-green); margin-top:0;">CYFROWA SZAFA</h3>
+            <p style="font-size: 0.75rem; color: var(--text-muted);">Przedmioty zdobyte z realnych zakupów phygitalowych.</p>
             <div class="inventory-grid" id="inventoryContainer"></div>
         </div>
-        <button class="btn btn-secondary" id="scanBtn">+ ZESKANUJ NOWY ZAKUP</button>
+        <button class="btn btn-secondary" onclick="scanReceiptQR()">📷 ZESKANUJ PARAGON / KOD QR</button>
     </div>
 
-    <!-- 3. MAPA -->
+    <!-- 3. ŻYWA MAPA (POKEMON GO STYLE) -->
     <div id="screen-map" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-            <span id="mapUserLabel" style="font-size:0.75rem; color:var(--accent-green); font-family:'Press Start 2P';">Gracz</span>
-            <span style="font-size:0.7rem; color:var(--accent-pink);">GPS LIVE</span>
+            <span id="mapUserLabel" style="font-size:0.65rem; color:var(--accent-green); font-family:'Press Start 2P';">Łódź / Chunk #404</span>
+            <span style="font-size:0.65rem; color:var(--accent-pink);">GPS LIVE 📡</span>
         </div>
-        <div id="map"></div>
+        <div id="map-view">
+            <div class="radar-wave"></div>
+            <div style="position: absolute; top: 10px; left: 10px; font-size: 0.65rem; color: var(--text-muted); text-align: left;">
+                📍 Status: <span id="gpsStatus" style="color: var(--accent-green);">Aktywny (Skanowanie okolicy)</span>
+            </div>
+            
+            <!-- Interaktywne punkty na mapie (Strefy marek i gracze) -->
+            <div class="map-pin" style="top: 25%; left: 15%; border-color: var(--accent-gold);" onclick="interactWithNode('Castorama Łódź - Strefa Budowlana')">🏗️ Castorama</div>
+            <div class="map-pin" style="bottom: 20%; right: 15%; border-color: var(--accent-pink);" onclick="interactWithNode('Manufaktura - Strefa Handlowa')">🛍️ Manufaktura</div>
+            <div class="map-pin" style="top: 60%; left: 30%;" onclick="interactWithNode('Marek (Fachowiec) - Szuka pomocy')">🧑‍🔧 Marek</div>
+            
+            <!-- Twój awatar na środku mapy -->
+            <div id="myMapPin" class="map-pin player" style="top: 45%; left: 45%;">👷‍♂️</div>
+        </div>
+        <p style="font-size: 0.7rem; text-align:center; color: var(--text-muted);" id="currentOutfitLabel">Aktywny ubiór: Kombinezon Roboczy</p>
     </div>
 
-    <!-- 4. ZLECENIA -->
+    <!-- 4. TABLICA ZLECEŃ (TIBIA MARKET) -->
     <div id="screen-quests" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">ZLECENIA</h3>
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.75rem; color: var(--accent-gold); margin-top:0;">GIELDA ZLECEŃ & GILDIA</h3>
             <div id="questList">
                 <div class="quest-item">
-                    <h4>Remont łazienki - ul. Piotrkowska</h4>
-                    <p>Materiały z Castoramy! 💰 2500 PLN</p>
+                    <h4>Remont Łazienki - ul. Piotrkowska</h4>
+                    <p>Wymagane materiały z Castoramy. Nagroda: 💰 1200 PLN + 300 EXP</p>
+                    <button class="btn" style="padding: 8px; font-size: 0.5rem;" onclick="completeQuest(1200, 300, 'Remont ul. Piotrkowska')">WYKONAJ ZLECENIE</button>
                 </div>
             </div>
         </div>
-        <button class="btn" id="addQuestBtn">+ DODAJ ZLECENIE</button>
+        <button class="btn" onclick="addNewQuest()">+ DODAJ OGŁOSZENIE (PHYGITAL)</button>
     </div>
 
-    <!-- DOLNE MENU -->
+    <!-- DOLNE MENU MMO -->
     <nav>
-        <button id="nav-profile" class="active">POSTAĆ</button>
-        <button id="nav-wardrobe">SZAFA</button>
-        <button id="nav-map">MAPA</button>
-        <button id="nav-quests">ZLECENIA</button>
+        <button id="nav-profile" class="active" onclick="switchScreen('screen-profile', this)">POSTAĆ</button>
+        <button id="nav-wardrobe" onclick="switchScreen('screen-wardrobe', this)">SZAFAPA</button>
+        <button id="nav-map" onclick="switchScreen('screen-map', this)">MAPA GPS</button>
+        <button id="nav-quests" onclick="switchScreen('screen-quests', this)">ZLECENIA</button>
     </nav>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let mapInstance = null;
-        let userData = {
+        // Stan gracza MMO
+        let player = {
             name: "Krzysztof Budowlaniec",
             icon: "👷‍♂️",
-            outfit: "Kombinezon Roboczy (Castorama)"
+            className: "Fachowiec (Castorama)",
+            equipped: "Kombinezon Roboczy (Castorama)",
+            gold: 250,
+            lvl: 1,
+            exp: 0
         };
 
         let inventory = [
-            { name: "Kombinezon Roboczy (Castorama)", icon: "🦺" },
-            { name: "Kurtka skórzana (Manufaktura Łódź)", icon: "🧥" },
-            { name: "Sneakersy Air (Deichmann)", icon: "👟" }
+            { name: "Kombinezon Roboczy (Castorama)", icon: "🦺", type: "armor" },
+            { name: "Kurtka Skórzana (Manufaktura)", icon: "🧥", type: "armor" },
+            { name: "Sneakersy Air (Deichmann)", icon: "👟", type: "shoes" }
         ];
 
-        function switchTab(screenId) {
-            try {
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+        function switchScreen(screenId, btnElement) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
-                document.getElementById(screenId).classList.add('active');
+            document.getElementById(screenId).classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
 
-                if (screenId === 'screen-profile') document.getElementById('nav-profile').classList.add('active');
-                if (screenId === 'screen-wardrobe') {
-                    document.getElementById('nav-wardrobe').classList.add('active');
-                    renderInventory();
-                }
-                if (screenId === 'screen-map') {
-                    document.getElementById('nav-map').classList.add('active');
-                    setTimeout(initMap, 150);
-                }
-                if (screenId === 'screen-quests') document.getElementById('nav-quests').classList.add('active');
-            } catch (e) {
-                console.error("Błąd przełączania zakładki:", e);
-            }
+            if(screenId === 'screen-wardrobe') renderInventory();
+            if(screenId === 'screen-map') initGPSRadar();
         }
 
-        function initMap() {
-            try {
-                if (!mapInstance) {
-                    mapInstance = L.map('map').setView([51.7592, 19.4560], 15);
-                    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                        maxZoom: 19,
-                        attribution: '&copy; OpenStreetMap'
-                    }).addTo(mapInstance);
+        function updateAvatarBase() {
+            let val = document.getElementById('inputAvatarType').value.split('|');
+            player.icon = val[0];
+            player.className = val[1];
+            document.getElementById('avatarDisplay').innerText = player.icon;
+            document.getElementById('profileClassDisplay').innerText = player.className;
+        }
 
-                    L.marker([51.7610, 19.4520]).addTo(mapInstance).bindPopup("<b>Anna (Architekt)</b><br>Materiały z Castoramy");
-                    L.marker([51.7570, 19.4600]).addTo(mapInstance).bindPopup("<b>Marek (Fachowiec)</b><br>Wolne terminy remontów");
-
-                    if (navigator.geolocation) {
-                        navigator.geolocation.getCurrentPosition(function(pos) {
-                            let lat = pos.coords.latitude;
-                            let lon = pos.coords.longitude;
-                            mapInstance.setView([lat, lon], 16);
-                            L.marker([lat, lon]).addTo(mapInstance).bindPopup(`<b>JA: ${userData.icon} ${userData.name}</b><br>Ubiór: ${userData.outfit}`).openPopup();
-                        }, function() {
-                            L.marker([51.7592, 19.4560]).addTo(mapInstance).bindPopup(`<b>JA: ${userData.icon} ${userData.name}</b><br>Ubiór: ${userData.outfit}`).openPopup();
-                        });
-                    }
-                } else {
-                    mapInstance.invalidateSize();
-                }
-            } catch(e) {
-                console.log("Mapa załadowana awaryjnie", e);
-            }
+        function saveAndEnterWorld() {
+            player.name = document.getElementById('inputName').value;
+            document.getElementById('profileNameDisplay').innerText = player.name;
+            document.getElementById('myMapPin').innerText = player.icon;
+            
+            // Przejdź na mapę
+            switchScreen('screen-map', document.getElementById('nav-map'));
         }
 
         function renderInventory() {
@@ -190,67 +214,78 @@
             if(!container) return;
             container.innerHTML = "";
             inventory.forEach(item => {
-                let equipped = (userData.outfit === item.name);
+                let isEquipped = (player.equipped === item.name);
                 container.innerHTML += `
-                    <div class="item-card ${equipped ? 'equipped' : ''}" onclick="setOutfit('${item.name}')">
+                    <div class="item-card ${isEquipped ? 'equipped' : ''}" onclick="equipItem('${item.name}')">
                         <div style="font-size: 2rem;">${item.icon}</div>
                         <h4>${item.name}</h4>
-                        <p style="font-size:0.7rem; color:#888; margin:5px 0 0 0;">${equipped ? '★ ZAŁOŻONE' : 'Załóż'}</p>
+                        <p style="font-size:0.65rem; color:#888; margin:3px 0 0 0;">${isEquipped ? '★ ZAŁOŻONE' : 'Kliknij by założyć'}</p>
                     </div>
                 `;
             });
         }
 
-        window.setOutfit = function(name) {
-            userData.outfit = name;
+        function equipItem(itemName) {
+            player.equipped = itemName;
             renderInventory();
-            alert(`Awatar założył: ${name}`);
+            document.getElementById('currentOutfitLabel').innerText = `Aktywny ubiór: ${itemName}`;
+            alert(`Awatar przebrał się w: ${itemName}`);
         }
 
-        // Inicjalizacja po załadowaniu strony
-        document.addEventListener("DOMContentLoaded", function() {
-            // Zmiana ikony awatara w selectie
-            document.getElementById('inputAvatarType').addEventListener('change', function() {
-                document.getElementById('avatarDisplay').innerText = this.value;
-            });
+        function scanReceiptQR() {
+            let code = prompt("Symulacja skanera phygital: Wpisz nazwę zakupionego produktu (np. Buty Nike, Wkrętarka Castorama):", "Wkrętarka akumulatorowa");
+            if(code) {
+                inventory.push({ name: code, icon: "🎁", type: "bonus" });
+                renderInventory();
+                alert(`Sukces! Zeskanowano paragon z realnego sklepu. Do szafy dodano: ${code}`);
+            }
+        }
 
-            // Przycisk zapisywania profilu
-            document.getElementById('saveBtn').addEventListener('click', function() {
-                userData.name = document.getElementById('inputName').value;
-                userData.icon = document.getElementById('inputAvatarType').value;
-                let label = document.getElementById('mapUserLabel');
-                if(label) label.innerText = `${userData.icon} ${userData.name}`;
-                
-                switchTab('screen-map');
-            });
+        function interactWithNode(nodeName) {
+            alert(`Wkroczyłeś do strefy phygitalowej: ${nodeName}\nMożesz tutaj handlować, przyjmować zadania od marek partnerskich i spotkać innych graczy!`);
+        }
 
-            // Skanowanie zakupu
-            document.getElementById('scanBtn').addEventListener('click', function() {
-                let item = prompt("Nazwa zakupionej rzeczy:", "Nowe buty");
-                if(item) {
-                    inventory.push({ name: item, icon: "🛍️" });
-                    renderInventory();
-                    alert("Dodano do szafy!");
-                }
-            });
+        function completeQuest(rewardGold, rewardExp, questTitle) {
+            player.gold += rewardGold;
+            player.exp += rewardExp;
+            
+            if(player.exp >= 500) {
+                player.lvl++;
+                player.exp = 0;
+                alert(`AWANS NA WYŻSZY POZIOM! Jesteś teraz na ${player.lvl} lvl!`);
+            } else {
+                alert(`Zlecenie "${questTitle}" ukończone!\nZarobiono: +${rewardGold} PLN oraz +${rewardExp} EXP.`);
+            }
 
-            // Dodawanie zlecenia
-            document.getElementById('addQuestBtn').addEventListener('click', function() {
-                let title = prompt("Tytuł zlecenia:");
-                let desc = prompt("Opis:");
-                if(title) {
-                    let list = document.getElementById('questList');
-                    list.innerHTML = `<div class="quest-item"><h4>${title}</h4><p>${desc}</p></div>` + list.innerHTML;
-                    alert("Dodano ogłoszenie!");
-                }
-            });
+            document.getElementById('statGold').innerText = player.gold;
+            document.getElementById('statLvl').innerText = player.lvl;
+        }
 
-            // Dolne menu nawigacyjne
-            document.getElementById('nav-profile').addEventListener('click', () => switchTab('screen-profile'));
-            document.getElementById('nav-wardrobe').addEventListener('click', () => switchTab('screen-wardrobe'));
-            document.getElementById('nav-map').addEventListener('click', () => switchTab('screen-map'));
-            document.getElementById('nav-quests').addEventListener('click', () => switchTab('screen-quests'));
-        });
+        function addNewQuest() {
+            let title = prompt("Tytuł nowego ogłoszenia/zlecenia:");
+            let reward = prompt("Oferowana nagroda w PLN:");
+            if(title && reward) {
+                let list = document.getElementById('questList');
+                list.innerHTML = `
+                    <div class="quest-item">
+                        <h4>${title}</h4>
+                        <p>Zlecenie od gracza/marki. Nagroda: 💰 ${reward} PLN + 150 EXP</p>
+                        <button class="btn" style="padding: 8px; font-size: 0.5rem;" onclick="completeQuest(${reward}, 150, '${title}')">WYKONAJ ZLECENIE</button>
+                    </div>
+                ` + list.innerHTML;
+                alert("Ogłoszenie zostało opublikowane na żywej mapie świata!");
+            }
+        }
+
+        function initGPSRadar() {
+            let status = document.getElementById('gpsStatus');
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => status.innerText = `GPS OK (${pos.coords.latitude.toFixed(3)}, ${pos.coords.longitude.toFixed(3)})`,
+                    () => status.innerText = "Tryb strefowy (Łódź Centrum)"
+                );
+            }
+        }
     </script>
 </body>
 </html>
