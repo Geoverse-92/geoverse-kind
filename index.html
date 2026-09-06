@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoVerse Beta - Żywy Świat i Społeczność</title>
+    <title>GeoVerse Beta</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400;700&display=swap');
@@ -18,19 +18,19 @@
         }
 
         body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Roboto', sans-serif; overflow-x: hidden; }
-        header { background: #12131a; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); }
-        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.8rem; margin: 0; text-shadow: 0 0 10px rgba(0,255,204,0.4); }
+        header { background: #12131a; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); }
+        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.8rem; margin: 0; }
 
-        .screen { display: none; padding: 20px; min-height: calc(100vh - 130px); padding-bottom: 90px; box-sizing: border-box; }
+        .screen { display: none; padding: 20px; padding-bottom: 100px; box-sizing: border-box; }
         .screen.active { display: block; }
 
-        .card { background: var(--panel-bg); border: 1px solid #2a2e3d; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
-        .avatar-box { width: 100px; height: 100px; background: #202330; border: 3px solid var(--accent-pink); border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 0 15px var(--accent-pink); }
+        .card { background: var(--panel-bg); border: 1px solid #2a2e3d; border-radius: 12px; padding: 20px; margin-bottom: 15px; }
+        .avatar-box { width: 100px; height: 100px; background: #202330; border: 3px solid var(--accent-pink); border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; }
         
         label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-family: 'Press Start 2P'; }
-        input, select { width: 100%; background: #0f1015; border: 1px solid #33384f; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 15px; box-sizing: border-box; }
+        input, select { width: 100%; background: #0f1015; border: 1px solid #33384f; color: #fff; padding: 12px; border-radius: 8px; font-size: 1rem; margin-bottom: 15px; box-sizing: border-box; }
 
-        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 14px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 15px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; }
         .btn:hover { background: var(--accent-pink); color: #fff; }
         .btn-secondary { background: #2a2e3d; color: #fff; margin-top: 8px; }
 
@@ -39,22 +39,22 @@
         .item-card.equipped { border-color: var(--accent-green); background: rgba(0,255,204,0.05); }
         .item-card h4 { margin: 5px 0 0 0; font-size: 0.8rem; font-family: 'Press Start 2P'; color: var(--accent-green); }
 
-        #map { height: 60vh; width: 100%; border-radius: 12px; border: 1px solid #2a2e3d; margin-bottom: 15px; z-index: 1; }
+        #map { height: 55vh; width: 100%; border-radius: 12px; border: 1px solid #2a2e3d; margin-bottom: 15px; }
 
         .quest-item { background: #202330; border-left: 4px solid var(--accent-pink); padding: 12px; border-radius: 6px; margin-bottom: 10px; }
         .quest-item h4 { margin: 0 0 5px 0; font-size: 0.85rem; color: #fff; }
         .quest-item p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
 
-        nav { display: flex; background: #12131a; border-top: 2px solid #2a2e3d; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; }
-        nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 14px 5px; font-family: 'Press Start 2P'; font-size: 0.45rem; cursor: pointer; text-align: center; }
+        nav { display: flex; background: #12131a; border-top: 2px solid #2a2e3d; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; }
+        nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 15px 5px; font-family: 'Press Start 2P'; font-size: 0.45rem; cursor: pointer; text-align: center; }
         nav button.active { color: var(--accent-green); background: #1a1c26; border-top: 2px solid var(--accent-green); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>GEOVERSE v0.9</h1>
-        <span style="font-size: 0.6rem; color: var(--accent-green); font-family: 'Press Start 2P';">● LIVE GPS</span>
+        <h1>GEOVERSE</h1>
+        <span style="font-size: 0.6rem; color: var(--accent-green); font-family: 'Press Start 2P';">BETA</span>
     </header>
 
     <div id="screen-profile" class="screen active">
@@ -62,41 +62,40 @@
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-pink); margin-top:0;">TWÓJ AWATAR</h3>
             <div class="avatar-box" id="avatarDisplay">👷‍♂️</div>
             
-            <label>Pseudonim w GeoVerse</label>
+            <label>Pseudonim</label>
             <input type="text" id="inputName" value="Krzysztof Budowlaniec" />
 
-            <label>Wybierz bazę postaci</label>
+            <label>Wybierz postać</label>
             <select id="inputAvatarType">
                 <option value="🧑‍💼">Profesjonalista / Inwestor</option>
-                <option value="👷‍♂️" selected>Fachowiec / Remonty (Castorama Team)</option>
+                <option value="👷‍♂️" selected>Fachowiec (Castorama)</option>
                 <option value="🏃‍♀️">Aktywny Mieszkaniec</option>
             </select>
 
-            <button class="btn" id="saveProfileBtn">ZAPISZ I WEJDŹ NA MAPĘ</button>
+            <button class="btn" onclick="goToMap()">ZAPISZ I WEJDŹ NA MAPĘ</button>
         </div>
     </div>
 
     <div id="screen-wardrobe" class="screen">
         <div class="card">
             <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">SZAFA / UBRANIA</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Ubrania z Manufaktury lub Castoramy.</p>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Ciuchy z Manufaktury i Castoramy.</p>
             <div class="inventory-grid" id="inventoryContainer"></div>
         </div>
-        <button class="btn btn-secondary" id="scanShoppingBtn">+ ZESKANUJ NOWY ZAKUP</button>
+        <button class="btn btn-secondary" onclick="scanShopping()">+ ZESKANUJ NOWY ZAKUP</button>
     </div>
 
     <div id="screen-map" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-            <span id="mapUserLabel" style="font-size:0.75rem; color:var(--accent-green); font-family:'Press Start 2P';">Profil: Gracz</span>
-            <span style="font-size:0.7rem; color:var(--accent-pink);">Zasięg: Łódź</span>
+            <span id="mapUserLabel" style="font-size:0.75rem; color:var(--accent-green); font-family:'Press Start 2P';">Gracz</span>
+            <span style="font-size:0.7rem; color:var(--accent-pink);">GPS LIVE</span>
         </div>
         <div id="map"></div>
-        <p style="font-size: 0.75rem; text-align:center; color: var(--text-muted);">Widzisz siebie i innych graczy na drodze.</p>
     </div>
 
     <div id="screen-quests" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">ZLECENIA I OGŁOSZENIA</h3>
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">ZLECENIA</h3>
             <div id="questList">
                 <div class="quest-item">
                     <h4>Remont łazienki - ul. Piotrkowska</h4>
@@ -104,103 +103,50 @@
                 </div>
             </div>
         </div>
-        <button class="btn" id="addQuestBtn">+ DODAJ ZLECENIE</button>
+        <button class="btn" onclick="addQuest()">+ DODAJ ZLECENIE</button>
     </div>
 
     <nav>
-        <button id="nav-profile" class="active">POSTAĆ</button>
-        <button id="nav-wardrobe">SZAFA</button>
-        <button id="nav-map">MAPA GPS</button>
-        <button id="nav-quests">ZLECENIA</button>
+        <button id="btn-profile" class="active" onclick="switchTab('screen-profile', this)">POSTAĆ</button>
+        <button id="btn-wardrobe" onclick="switchTab('screen-wardrobe', this)">SZAFA</button>
+        <button id="btn-map" onclick="switchTab('screen-map', this)">MAPA</button>
+        <button id="btn-quests" onclick="switchTab('screen-quests', this)">ZLECENIA</button>
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let map = null;
+        let mapInstance = null;
         let userData = {
             name: "Krzysztof Budowlaniec",
-            avatarIcon: "👷‍♂️",
-            equippedOutfit: "Kombinezon Roboczy (Castorama)"
+            icon: "👷‍♂️",
+            outfit: "Kombinezon Roboczy (Castorama)"
         };
 
-        let playerInventory = [
-            { id: 1, name: "Kombinezon Roboczy (Castorama)", icon: "🦺" },
-            { id: 2, name: "Kurtka skórzana (Manufaktura Łódź)", icon: "🧥" },
-            { id: 3, name: "Sneakersy Air (Deichmann)", icon: "👟" }
+        let inventory = [
+            { name: "Kombinezon Roboczy (Castorama)", icon: "🦺" },
+            { name: "Kurtka skórzana (Manufaktura Łódź)", icon: "🧥" },
+            { name: "Sneakersy Air (Deichmann)", icon: "👟" }
         ];
 
-        function switchScreen(screenId) {
+        // Wybór ikony awatara w locie
+        document.getElementById('inputAvatarType').addEventListener('change', function() {
+            document.getElementById('avatarDisplay').innerText = this.value;
+        });
+
+        function switchTab(screenId, btnElement) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
             document.getElementById(screenId).classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
 
-            if(screenId === 'screen-profile') document.getElementById('nav-profile').classList.add('active');
-            if(screenId === 'screen-wardrobe') {
-                document.getElementById('nav-wardrobe').classList.add('active');
-                renderInventory();
-            }
+            if(screenId === 'screen-wardrobe') renderInventory();
             if(screenId === 'screen-map') {
-                document.getElementById('nav-map').classList.add('active');
-                setTimeout(initMap, 200);
-            }
-            if(screenId === 'screen-quests') document.getElementById('nav-quests').classList.add('active');
-        }
-
-        function initMap() {
-            if (!map) {
-                map = L.map('map').setView([51.7592, 19.4560], 15);
-                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                    maxZoom: 19,
-                    attribution: '&copy; OpenStreetMap'
-                }).addTo(map);
-
-                L.marker([51.7610, 19.4520]).addTo(map).bindPopup("<b>Anna (Architekt)</b><br>Materiały z Castoramy");
-                L.marker([51.7570, 19.4600]).addTo(map).bindPopup("<b>Marek (Fachowiec)</b><br>Wolne terminy remontów");
-
-                if (navigator.geolocation) {
-                    navigator.geolocation.getCurrentPosition(function(pos) {
-                        let lat = pos.coords.latitude;
-                        let lon = pos.coords.longitude;
-                        map.setView([lat, lon], 16);
-                        L.marker([lat, lon]).addTo(map).bindPopup(`<b>JA: ${userData.avatarIcon} ${userData.name}</b><br>Ubiór: ${userData.equippedOutfit}`).openPopup();
-                    }, function() {
-                        L.marker([51.7592, 19.4560]).addTo(map).bindPopup(`<b>JA: ${userData.avatarIcon} ${userData.name}</b><br>Ubiór: ${userData.equippedOutfit}`).openPopup();
-                    });
-                }
-            } else {
-                map.invalidateSize();
+                // Małe opóźnienie żeby kontener mapy zdążył się wyrenderować
+                setTimeout(initMap, 100);
             }
         }
 
-        function renderInventory() {
-            let container = document.getElementById('inventoryContainer');
-            container.innerHTML = "";
-            playerInventory.forEach(item => {
-                let isEquipped = (userData.equippedOutfit === item.name);
-                container.innerHTML += `
-                    <div class="item-card ${isEquipped ? 'equipped' : ''}" onclick="window.equipItem('${item.name}')">
-                        <div style="font-size: 2rem;">${item.icon}</div>
-                        <h4>${item.name}</h4>
-                        <p style="font-size:0.7rem; color:#888; margin:5px 0 0 0;">${isEquipped ? '★ ZAŁOŻONE' : 'Kliknij'}</p>
-                    </div>
-                `;
-            });
-        }
-
-        window.equipItem = function(itemName) {
-            userData.equippedOutfit = itemName;
-            renderInventory();
-            alert(`Awatar założył: ${itemName}`);
-        };
-
-        // Nasłuchiwanie zdarzeń z pełnym wsparciem mobilnym
-        document.addEventListener("DOMContentLoaded", function() {
-            document.getElementById('inputAvatarType').addEventListener('change', function() {
-                document.getElementById('avatarDisplay').innerText = this.value;
-            });
-
-            document.getElementById('saveProfileBtn').addEventListener('click', function() {
-                userData.name = document.getElementById('inputName').value;
-                userData.avatarIcon = document.getElementById('input
+        function goToMap() {
+            userData.name = document.
         
