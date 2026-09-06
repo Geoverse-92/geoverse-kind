@@ -30,8 +30,8 @@
         label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-family: 'Press Start 2P'; }
         input, select { width: 100%; background: #0f1015; border: 1px solid #33384f; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 15px; box-sizing: border-box; }
 
-        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 14px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; transition: 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
-        .btn:hover { background: var(--accent-pink); color: #fff; box-shadow: 0 0 15px var(--accent-pink); }
+        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 14px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        .btn:hover { background: var(--accent-pink); color: #fff; }
         .btn-secondary { background: #2a2e3d; color: #fff; margin-top: 8px; }
 
         .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
@@ -53,8 +53,8 @@
 <body>
 
     <header>
-        <h1>GEOVERSE v0.9 BETA</h1>
-        <span id="headerStatus" style="font-size: 0.6rem; color: var(--accent-green); font-family: 'Press Start 2P';">● LIVE GPS</span>
+        <h1>GEOVERSE v0.9</h1>
+        <span style="font-size: 0.6rem; color: var(--accent-green); font-family: 'Press Start 2P';">● LIVE GPS</span>
     </header>
 
     <div id="screen-profile" class="screen active">
@@ -66,64 +66,57 @@
             <input type="text" id="inputName" value="Krzysztof Budowlaniec" />
 
             <label>Wybierz bazę postaci</label>
-            <select id="inputAvatarType" onchange="updateAvatarPreview()">
+            <select id="inputAvatarType">
                 <option value="🧑‍💼">Profesjonalista / Inwestor</option>
                 <option value="👷‍♂️" selected>Fachowiec / Remonty (Castorama Team)</option>
                 <option value="🏃‍♀️">Aktywny Mieszkaniec</option>
             </select>
 
-            <button class="btn" onclick="saveProfileAndGoToMap()">ZAPISZ I WEJDŹ NA MAPĘ</button>
+            <button class="btn" id="saveProfileBtn">ZAPISZ I WEJDŹ NA MAPĘ</button>
         </div>
     </div>
 
     <div id="screen-wardrobe" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">SZAFA / SKRZYNIA UBRAŃ</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Ubrania z galerii Manufaktura Łódź lub Castorama. Załóż je na swój awatar!</p>
-            
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">SZAFA / UBRANIA</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Ubrania z Manufaktury lub Castoramy.</p>
             <div class="inventory-grid" id="inventoryContainer"></div>
         </div>
-        <button class="btn btn-secondary" onclick="simulateNewShopping()">+ ZESKANUJ NOWY ZAKUP (PARAGON QR)</button>
+        <button class="btn btn-secondary" id="scanShoppingBtn">+ ZESKANUJ NOWY ZAKUP</button>
     </div>
 
     <div id="screen-map" class="screen">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
             <span id="mapUserLabel" style="font-size:0.75rem; color:var(--accent-green); font-family:'Press Start 2P';">Profil: Gracz</span>
-            <span style="font-size:0.7rem; color:var(--accent-pink);">Zasięg: Łódź / Polska</span>
+            <span style="font-size:0.7rem; color:var(--accent-pink);">Zasięg: Łódź</span>
         </div>
         <div id="map"></div>
-        <p style="font-size: 0.75rem; text-align:center; color: var(--text-muted);">Widzisz siebie i innych użytkowników w czasie rzeczywistym.</p>
+        <p style="font-size: 0.75rem; text-align:center; color: var(--text-muted);">Widzisz siebie i innych graczy na drodze.</p>
     </div>
 
     <div id="screen-quests" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">LOKALNY RYNEK ZLECEŃ</h3>
-            <p style="font-size: 0.8rem; color: var(--text-muted);">Pomoc sąsiedzka, remonty, zlecenia w drodze.</p>
-            
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">ZLECENIA I OGŁOSZENIA</h3>
             <div id="questList">
                 <div class="quest-item">
                     <h4>Remont łazienki - ul. Piotrkowska</h4>
-                    <p>Szukam kogoś do ułożenia płytek i hydrauliki. Materiały z Castoramy! 💰 2500 PLN</p>
-                </div>
-                <div class="quest-item">
-                    <h4>Pomoc wniesienia kanapy z Manufaktury</h4>
-                    <p>Potrzebna jedna osoba na dzisiaj po południu. 💰 80 PLN</p>
+                    <p>Materiały z Castoramy! 💰 2500 PLN</p>
                 </div>
             </div>
         </div>
-        <button class="btn" onclick="addNewQuestPrompt()">+ DODAJ ZLECENIE</button>
+        <button class="btn" id="addQuestBtn">+ DODAJ ZLECENIE</button>
     </div>
 
     <nav>
-        <button id="nav-profile" class="active" onclick="switchTab('screen-profile', this)">POSTAĆ</button>
-        <button id="nav-wardrobe" onclick="switchTab('screen-wardrobe', this)">SZAFA</button>
-        <button id="nav-map" onclick="switchTab('screen-map', this)">MAPA GPS</button>
-        <button id="nav-quests" onclick="switchTab('screen-quests', this)">ZLECENIA</button>
+        <button id="nav-profile" class="active">POSTAĆ</button>
+        <button id="nav-wardrobe">SZAFA</button>
+        <button id="nav-map">MAPA GPS</button>
+        <button id="nav-quests">ZLECENIA</button>
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let map, userMarker;
+        let map = null;
         let userData = {
             name: "Krzysztof Budowlaniec",
             avatarIcon: "👷‍♂️",
@@ -136,33 +129,48 @@
             { id: 3, name: "Sneakersy Air (Deichmann)", icon: "👟" }
         ];
 
-        function switchTab(screenId, btnElement) {
+        function switchScreen(screenId) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
 
             document.getElementById(screenId).classList.add('active');
-            if(btnElement) btnElement.classList.add('active');
 
-            if(screenId === 'screen-wardrobe') renderInventory();
-            if(screenId === 'screen-map') {
-                setTimeout(() => { initMap(); }, 150);
+            if(screenId === 'screen-profile') document.getElementById('nav-profile').classList.add('active');
+            if(screenId === 'screen-wardrobe') {
+                document.getElementById('nav-wardrobe').classList.add('active');
+                renderInventory();
             }
+            if(screenId === 'screen-map') {
+                document.getElementById('nav-map').classList.add('active');
+                setTimeout(initMap, 200);
+            }
+            if(screenId === 'screen-quests') document.getElementById('nav-quests').classList.add('active');
         }
 
-        function updateAvatarPreview() {
-            let type = document.getElementById('inputAvatarType').value;
-            document.getElementById('avatarDisplay').innerText = type;
-        }
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([51.7592, 19.4560], 15);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; OpenStreetMap'
+                }).addTo(map);
 
-        function saveProfileAndGoToMap() {
-            userData.name = document.getElementById('inputName').value;
-            userData.avatarIcon = document.getElementById('inputAvatarType').value;
-            
-            document.getElementById('mapUserLabel').innerText = `${userData.avatarIcon}${userData.name}`;
-            
-            // Przełącz na zakładkę mapy i aktywuj przycisk w menu dolnym
-            let mapBtn = document.getElementById('nav-map');
-            switchTab('screen-map', mapBtn);
+                L.marker([51.7610, 19.4520]).addTo(map).bindPopup("<b>Anna (Architekt)</b><br>Materiały z Castoramy");
+                L.marker([51.7570, 19.4600]).addTo(map).bindPopup("<b>Marek (Fachowiec)</b><br>Wolne terminy remontów");
+
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        let lat = pos.coords.latitude;
+                        let lon = pos.coords.longitude;
+                        map.setView([lat, lon], 16);
+                        L.marker([lat, lon]).addTo(map).bindPopup(`<b>JA: ${userData.avatarIcon} ${userData.name}</b><br>Ubiór: ${userData.equippedOutfit}`).openPopup();
+                    }, function() {
+                        L.marker([51.7592, 19.4560]).addTo(map).bindPopup(`<b>JA: ${userData.avatarIcon} ${userData.name}</b><br>Ubiór: ${userData.equippedOutfit}`).openPopup();
+                    });
+                }
+            } else {
+                map.invalidateSize();
+            }
         }
 
         function renderInventory() {
@@ -171,24 +179,28 @@
             playerInventory.forEach(item => {
                 let isEquipped = (userData.equippedOutfit === item.name);
                 container.innerHTML += `
-                    <div class="item-card ${isEquipped ? 'equipped' : ''}" onclick="equipItem('${item.name}')">
+                    <div class="item-card ${isEquipped ? 'equipped' : ''}" onclick="window.equipItem('${item.name}')">
                         <div style="font-size: 2rem;">${item.icon}</div>
                         <h4>${item.name}</h4>
-                        <p style="font-size:0.7rem; color:#888; margin:5px 0 0 0;">${isEquipped ? '★ ZAŁOŻONE' : 'Kliknij, aby założyć'}</p>
+                        <p style="font-size:0.7rem; color:#888; margin:5px 0 0 0;">${isEquipped ? '★ ZAŁOŻONE' : 'Kliknij'}</p>
                     </div>
                 `;
             });
         }
 
-        function equipItem(itemName) {
+        window.equipItem = function(itemName) {
             userData.equippedOutfit = itemName;
             renderInventory();
-            alert(`Awatar założył: ${itemName}! Zmiana widoczna na mapie.`);
-        }
+            alert(`Awatar założył: ${itemName}`);
+        };
 
-        function simulateNewShopping() {
-            let newItemName = prompt("Wpisz zakup (np. Nowa bluza H&M):", "Bluza H&M");
-            if(newItemName) {
-                playerInventory.push({ id: Date.now(), name: newItemName, icon: "🛍️" });
-                renderInventory();
-                alert(`Zeskanowano paragon
+        // Nasłuchiwanie zdarzeń z pełnym wsparciem mobilnym
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById('inputAvatarType').addEventListener('change', function() {
+                document.getElementById('avatarDisplay').innerText = this.value;
+            });
+
+            document.getElementById('saveProfileBtn').addEventListener('click', function() {
+                userData.name = document.getElementById('inputName').value;
+                userData.avatarIcon = document.getElementById('input
+        
