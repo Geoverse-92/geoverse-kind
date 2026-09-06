@@ -3,34 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoVerse x KIND - Oficjalna Aplikacja</title>
+    <title>GeoVerse - Mobile Web Map</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --primary: #10b981;
-            --danger: #ef4444;
-            --text: #f8fafc;
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;700&display=swap');
+        body { margin: 0; background: #121212; color: #fff; font-family: 'Roboto', sans-serif; }
+        header { background: #000; padding: 15px; text-align: center; border-bottom: 2px solid #00ffcc; }
+        h1 { font-family: 'Press Start 2P', cursive; color: #00ffcc; font-size: 1.1rem; margin: 0; }
+        #map { height: 65vh; width: 100%; }
+        .footer-panel { padding: 15px; text-align: center; background: #1a1a1a; }
+        .btn { background: #ff00ff; color: #000; padding: 12px 20px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; text-decoration: none; border: none; cursor: pointer; display: inline-block; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>GeoVerse Mobile</h1>
+    </header>
+    <div id="map"></div>
+    <div class="footer-panel">
+        <p id="status" style="font-size: 0.8rem; color: #00ffcc;">Gotowy do pobrania lokalizacji GPS</p>
+        <button class="btn" onclick="centerMap()">Zlokalizuj mnie</button>
+    </div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([50.0647, 19.9450], 14);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap'
+        }).addTo(map);
+        var marker = L.marker([50.0647, 19.9450]).addTo(map).bindPopup("Tu zaczyna się GeoVerse!").openPopup();
+        function centerMap() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    var lat = pos.coords.latitude;
+                    var lon = pos.coords.longitude;
+                    map.setView([lat, lon], 16);
+                    marker.setLatLng([lat, lon]);
+                    document.getElementById('status').innerText = `GPS OK: ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
+                }, function() { alert("Błąd dostępu do GPS w telefonie."); });
+            } else { alert("Brak wsparcia dla geolokalizacji."); }
         }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text);
-            text-align: center;
-        }
-        header {
-            background: linear-gradient(135deg, #059669, #10b981);
-            padding: 30px 20px;
-            border-bottom-left-radius: 20px;
-            border-bottom-right-radius: 20px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
-        }
-        .container {
-            max-width: 480px;
-            margin: 20px auto;
-            padding: 20px;
-        }
-        .card {
-            background: var(--card-bg);
+    </script>
+</body>
+</html>
