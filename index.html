@@ -3,45 +3,85 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoVerse - Mobile Web Map</title>
+    <title>GeoVerse - Społecznościowy Świat na Żywo</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;700&display=swap');
-        body { margin: 0; background: #121212; color: #fff; font-family: 'Roboto', sans-serif; }
-        header { background: #000; padding: 15px; text-align: center; border-bottom: 2px solid #00ffcc; }
-        h1 { font-family: 'Press Start 2P', cursive; color: #00ffcc; font-size: 1.1rem; margin: 0; }
+        
+        body { margin: 0; background: #0b0b0f; color: #fff; font-family: 'Roboto', sans-serif; overflow: hidden; }
+        header { background: #121218; padding: 12px; text-align: center; border-bottom: 2px solid #00ffcc; display: flex; justify-content: space-between; align-items: center; }
+        h1 { font-family: 'Press Start 2P', cursive; color: #00ffcc; font-size: 0.9rem; margin: 0; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
         #map { height: 65vh; width: 100%; }
-        .footer-panel { padding: 15px; text-align: center; background: #1a1a1a; }
-        .btn { background: #ff00ff; color: #000; padding: 12px 20px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; text-decoration: none; border: none; cursor: pointer; display: inline-block; }
+        .control-panel { padding: 15px; background: #16161e; display: flex; flex-direction: column; gap: 10px; border-top: 2px solid #ff00ff; }
+        .input-group { display: flex; gap: 8px; }
+        input[type="text"] { flex: 1; background: #22222f; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 4px; font-family: 'Roboto', sans-serif; }
+        .btn { background: #ff00ff; color: #000; padding: 10px 15px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; text-decoration: none; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
+        .btn:hover { background: #00ffcc; box-shadow: 0 0 10px #00ffcc; }
+        .status-info { font-size: 0.75rem; color: #aaa; text-align: center; }
     </style>
 </head>
 <body>
+
     <header>
-        <h1>GeoVerse Mobile</h1>
+        <h1>GeoVerse</h1>
+        <span style="font-size: 0.7rem; color: #ff00ff; font-family: 'Press Start 2P';">ONLINE</span>
     </header>
+
     <div id="map"></div>
-    <div class="footer-panel">
-        <p id="status" style="font-size: 0.8rem; color: #00ffcc;">Gotowy do pobrania lokalizacji GPS</p>
-        <button class="btn" onclick="centerMap()">Zlokalizuj mnie</button>
+
+    <div class="control-panel">
+        <div class="status-info" id="info-text">Kliknij na mapę lub wpisz swój status, aby zaznaczyć się w okolicy!</div>
+        <div class="input-group">
+            <input type="text" id="userStatusInput" placeholder="Np. Sprzedam rower / Szukam ekipy..." />
+            <button class="btn" onclick="addMyPin()">NADAJ</button>
+        </div>
     </div>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         var map = L.map('map').setView([50.0647, 19.9450], 14);
+
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
             maxZoom: 19,
             attribution: '&copy; OpenStreetMap'
         }).addTo(map);
-        var marker = L.marker([50.0647, 19.9450]).addTo(map).bindPopup("Tu zaczyna się GeoVerse!").openPopup();
-        function centerMap() {
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(pos) {
-                    var lat = pos.coords.latitude;
-                    var lon = pos.coords.longitude;
-                    map.setView([lat, lon], 16);
-                    marker.setLatLng([lat, lon]);
-                    document.getElementById('status').innerText = `GPS OK: ${lat.toFixed(3)}, ${lon.toFixed(3)}`;
-                }, function() { alert("Błąd dostępu do GPS w telefonie."); });
-            } else { alert("Brak wsparcia dla geolokalizacji."); }
+
+        // Przykładowe społecznościowe pinezki na start
+        var communityPins = [
+            { lat: 50.0647, lon: 19.9450, text: "Główny Hub GeoVerse 🚀" },
+            { lat: 50.0610, lon: 19.9380, text: "Kto na kawę? ☕" },
+            { lat: 50.0700, lon: 19.9500, text: "Szukam graczy do ekipy RPG 🎲" }
+        ];
+
+        communityPins.forEach(function(pin) {
+            L.marker([pin.lat, pin.lon]).addTo(map)
+              .bindPopup(`<b>Status Społeczności:</b><br>${pin.text}`);
+        });
+
+        let currentCoords = [50.0647, 19.9450];
+
+        // Pobieranie lokalizacji użytkownika automatycznie
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                currentCoords = [pos.coords.latitude, pos.coords.longitude];
+                map.setView(currentCoords, 15);
+                document.getElementById('info-text').innerText = "Twoja lokalizacja została zsynchronizowana!";
+            });
+        }
+
+        function addMyPin() {
+            let statusText = document.getElementById('userStatusInput').value;
+            if(!statusText) {
+                alert("Wpisz najpierw treść statusu!");
+                return;
+            }
+
+            L.marker(currentCoords).addTo(map)
+              .bindPopup(`<b>Mój Status:</b><br>${statusText}`)
+              .openPopup();
+
+            document.getElementById('userStatusInput').value = "";
+            document.getElementById('info-text').innerText = "Twój status został nadany w tej lokalizacji!";
         }
     </script>
 </body>
