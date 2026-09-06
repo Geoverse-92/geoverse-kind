@@ -3,85 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoVerse - Społecznościowy Świat na Żywo</title>
+    <title>GeoVerse - Stwórz Awatar & Zakupy</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;700&display=swap');
         
-        body { margin: 0; background: #0b0b0f; color: #fff; font-family: 'Roboto', sans-serif; overflow: hidden; }
-        header { background: #121218; padding: 12px; text-align: center; border-bottom: 2px solid #00ffcc; display: flex; justify-content: space-between; align-items: center; }
-        h1 { font-family: 'Press Start 2P', cursive; color: #00ffcc; font-size: 0.9rem; margin: 0; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
-        #map { height: 65vh; width: 100%; }
-        .control-panel { padding: 15px; background: #16161e; display: flex; flex-direction: column; gap: 10px; border-top: 2px solid #ff00ff; }
-        .input-group { display: flex; gap: 8px; }
-        input[type="text"] { flex: 1; background: #22222f; border: 1px solid #444; color: #fff; padding: 10px; border-radius: 4px; font-family: 'Roboto', sans-serif; }
-        .btn { background: #ff00ff; color: #000; padding: 10px 15px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; text-decoration: none; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; }
-        .btn:hover { background: #00ffcc; box-shadow: 0 0 10px #00ffcc; }
-        .status-info { font-size: 0.75rem; color: #aaa; text-align: center; }
+        body { margin: 0; background: #0b0b0f; color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        header { background: #121218; padding: 15px; text-align: center; border-bottom: 2px solid #00ffcc; }
+        h1 { font-family: 'Press Start 2P', cursive; color: #00ffcc; font-size: 1rem; margin: 0; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
+        
+        .screen { display: none; padding: 20px; min-height: 80vh; }
+        .screen.active { display: block; }
+
+        /* Kreator Postaci */
+        .avatar-preview { width: 120px; height: 120px; background: #1a1a24; border: 3px solid #ff00ff; border-radius: 50%; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: 0 0 15px #ff00ff; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; font-family: 'Press Start 2P'; }
+        select, input { width: 100%; background: #16161e; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 6px; font-size: 1rem; }
+
+        /* Sklep Brands */
+        .store-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
+        .brand-card { background: #16161e; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: center; }
+        .brand-card h3 { font-family: 'Press Start 2P'; font-size: 0.8rem; color: #ff00ff; }
+
+        /* Mapa */
+        #map { height: 60vh; width: 100%; border-radius: 8px; margin-top: 10px; }
+
+        .btn { background: #00ffcc; color: #000; width: 100%; padding: 15px; font-family: 'Press Start 2P', cursive; font-size: 0.8rem; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; margin-top: 15px; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        .btn:hover { background: #ff00ff; color: #fff; }
+
+        /* Nawigacja Dolna */
+        nav { display: flex; background: #121218; border-top: 2px solid #333; position: fixed; bottom: 0; width: 100%; }
+        nav button { flex: 1; background: none; border: none; color: #888; padding: 15px; font-family: 'Press Start 2P'; font-size: 0.5rem; cursor: pointer; }
+        nav button.active { color: #00ffcc; border-top: 2px solid #00ffcc; background: #16161e; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>GeoVerse</h1>
-        <span style="font-size: 0.7rem; color: #ff00ff; font-family: 'Press Start 2P';">ONLINE</span>
+        <h1>GEOVERSE</h1>
     </header>
 
-    <div id="map"></div>
+    <div id="screen-avatar" class="screen active">
+        <h2 style="font-family: 'Press Start 2P'; font-size: 0.9rem; color: #ff00ff; text-align: center;">STWÓRZ AWATAR</h2>
+        <div class="avatar-preview" id="avatarIcon">🧥</div>
+        
+        <div class="form-group">
+            <label>Pseudonim Gracza</label>
+            <input type="text" id="playerName" value="CyberGracz" />
+        </div>
 
-    <div class="control-panel">
-        <div class="status-info" id="info-text">Kliknij na mapę lub wpisz swój status, aby zaznaczyć się w okolicy!</div>
-        <div class="input-group">
-            <input type="text" id="userStatusInput" placeholder="Np. Sprzedam rower / Szukam ekipy..." />
-            <button class="btn" onclick="addMyPin()">NADAJ</button>
+        <div class="form-group">
+            <label>Styl Bazowy Ubioru</label>
+            <select id="playerStyle" onchange="updatePreview()">
+                <option value="🧥">Streetwear (H&M Style)</option>
+                <option value="👟">Sport (Nike Runner)</option>
+                <option value="🦾">Cyberpunk Techwear</option>
+            </select>
+        </div>
+
+        <button class="btn" onclick="switchScreen('screen-map')">ZAPISZ I WYJDŹ NA MAPĘ</button>
+    </div>
+
+    <div id="screen-store" class="screen">
+        <h2 style="font-family: 'Press Start 2P'; font-size: 0.9rem; color: #00ffcc; text-align: center;">SKLEPY PARTNERSKIE</h2>
+        <p style="font-size: 0.8rem; color: #aaa; text-align: center;">Zrób zakupy w realu, zeskanuj paragon i odblokuj cyfrowy ciuch dla postaci!</p>
+        
+        <div class="store-grid">
+            <div class="brand-card">
+                <h3>NIKE</h3>
+                <p style="font-size: 0.7rem;">Limitowane sneakersy Air Geo</p>
+                <button class="btn" style="padding: 8px; font-size: 0.5rem;" onclick="buyItem('👟 Nike Air')">ZESKANUJ ZAKUP</button>
+            </div>
+            <div class="brand-card">
+                <h3>H&M</h3>
+                <p style="font-size: 0.7rem;">Kolekcja Eco Urban Jacket</p>
+                <button class="btn" style="padding: 8px; font-size: 0.5rem;" onclick="buyItem('🧥 H&M Urban')">ZESKANUJ ZAKUP</button>
+            </div>
         </div>
     </div>
 
+    <div id="screen-map" class="screen">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span id="displayProfile" style="font-size: 0.8rem; color: #00ffcc; font-family:'Press Start 2P';">Gracz</span>
+            <span id="inventoryStatus" style="font-size: 0.7rem; color: #ff00ff;">Ekwipunek: Bazowy</span>
+        </div>
+        <div id="map"></div>
+    </div>
+
+    <nav>
+        <button id="nav-avatar" class="active" onclick="switchScreen('screen-avatar')">POSTAĆ</button>
+        <button id="nav-store" onclick="switchScreen('screen-store')">SKLEPY</button>
+        <button id="nav-map" onclick="switchScreen('screen-map')">ŚWIAT</button>
+    </nav>
+
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        var map = L.map('map').setView([50.0647, 19.9450], 14);
+        let map, userMarker;
+        let userData = { name: "CyberGracz", style: "🧥", item: "Brak" };
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            attribution: '&copy; OpenStreetMap'
-        }).addTo(map);
-
-        // Przykładowe społecznościowe pinezki na start
-        var communityPins = [
-            { lat: 50.0647, lon: 19.9450, text: "Główny Hub GeoVerse 🚀" },
-            { lat: 50.0610, lon: 19.9380, text: "Kto na kawę? ☕" },
-            { lat: 50.0700, lon: 19.9500, text: "Szukam graczy do ekipy RPG 🎲" }
-        ];
-
-        communityPins.forEach(function(pin) {
-            L.marker([pin.lat, pin.lon]).addTo(map)
-              .bindPopup(`<b>Status Społeczności:</b><br>${pin.text}`);
-        });
-
-        let currentCoords = [50.0647, 19.9450];
-
-        // Pobieranie lokalizacji użytkownika automatycznie
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(function(pos) {
-                currentCoords = [pos.coords.latitude, pos.coords.longitude];
-                map.setView(currentCoords, 15);
-                document.getElementById('info-text').innerText = "Twoja lokalizacja została zsynchronizowana!";
-            });
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+            
+            document.getElementById(screenId).classList.add('active');
+            
+            if(screenId === 'screen-avatar') document.getElementById('nav-avatar').classList.add('active');
+            if(screenId === 'screen-store') document.getElementById('nav-store').classList.add('active');
+            if(screenId === 'screen-map') {
+                document.getElementById('nav-map').classList.add('active');
+                updateMapProfile();
+                initMap();
+            }
         }
 
-        function addMyPin() {
-            let statusText = document.getElementById('userStatusInput').value;
-            if(!statusText) {
-                alert("Wpisz najpierw treść statusu!");
+        function updatePreview() {
+            let style = document.getElementById('playerStyle').value;
+            document.getElementById('avatarIcon').innerText = style;
+        }
+
+        function buyItem(itemName) {
+            userData.item = itemName;
+            alert(`Sukces! Zeskanowano paragon. Dodano do ekwipunku: ${itemName}! Awatar został zaktualizowany.`);
+            document.getElementById('inventoryStatus').innerText = `Ciuch: ${itemName}`;
+            switchScreen('screen-map');
+        }
+
+        function updateMapProfile() {
+            userData.name = document.getElementById('playerName').value;
+            userData.style = document.getElementById('playerStyle').value;
+            document.getElementById('displayProfile').innerText = `${userData.style} ${userData.name}`;
+        }
+
+        function initMap() {
+            if(map) {
+                map.invalidateSize();
                 return;
             }
+            
+            map = L.map('map').setView([50.0647, 19.9450], 15);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap'
+            }).addTo(map);
 
-            L.marker(currentCoords).addTo(map)
-              .bindPopup(`<b>Mój Status:</b><br>${statusText}`)
-              .openPopup();
-
-            document.getElementById('userStatusInput').value = "";
-            document.getElementById('info-text').innerText = "Twój status został nadany w tej lokalizacji!";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function(pos) {
+                    let lat = pos.coords.latitude;
+                    let lon = pos.coords.longitude;
+                    map.setView([lat, lon], 16);
+                    userMarker = L.marker([lat, lon]).addTo(map)
+                        .bindPopup(`<b>${userData.name}</b><br>Ubiór: ${userData.style} (${userData.item})`)
+                        .openPopup();
+                });
+            }
         }
     </script>
 </body>
