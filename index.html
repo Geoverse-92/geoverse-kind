@@ -3,161 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoVerse - Stwórz Awatar & Zakupy</title>
+    <title>GeoVerse Beta - Żywy Świat i Społeczność</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;700&display=swap');
-        
-        body { margin: 0; background: #0b0b0f; color: #fff; font-family: 'Roboto', sans-serif; overflow-x: hidden; }
-        header { background: #121218; padding: 15px; text-align: center; border-bottom: 2px solid #00ffcc; }
-        h1 { font-family: 'Press Start 2P', cursive; color: #00ffcc; font-size: 1rem; margin: 0; text-shadow: 0 0 10px rgba(0,255,204,0.5); }
-        
-        .screen { display: none; padding: 20px; min-height: 80vh; }
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400;700&display=swap');
+
+        :root {
+            --bg-dark: #0f1015;
+            --panel-bg: #161821;
+            --accent-green: #00ffcc;
+            --accent-pink: #ff00ff;
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
+        }
+
+        body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        header { background: #12131a; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); }
+        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.8rem; margin: 0; text-shadow: 0 0 10px rgba(0,255,204,0.4); }
+
+        .screen { display: none; padding: 20px; min-height: calc(100vh - 130px); padding-bottom: 90px; }
         .screen.active { display: block; }
 
-        /* Kreator Postaci */
-        .avatar-preview { width: 120px; height: 120px; background: #1a1a24; border: 3px solid #ff00ff; border-radius: 50%; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; font-size: 3rem; box-shadow: 0 0 15px #ff00ff; }
-        .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 0.8rem; color: #aaa; margin-bottom: 5px; font-family: 'Press Start 2P'; }
-        select, input { width: 100%; background: #16161e; border: 1px solid #444; color: #fff; padding: 12px; border-radius: 6px; font-size: 1rem; }
+        /* Style Kreatora i Szafy */
+        .card { background: var(--panel-bg); border: 1px solid #2a2e3d; border-radius: 12px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.5); }
+        .avatar-box { width: 100px; height: 100px; background: #202330; border: 3px solid var(--accent-pink); border-radius: 50%; margin: 0 auto 15px auto; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; box-shadow: 0 0 15px var(--accent-pink); }
+        
+        label { display: block; font-size: 0.75rem; color: var(--text-muted); margin-bottom: 6px; font-family: 'Press Start 2P'; }
+        input, select { width: 100%; background: #0f1015; border: 1px solid #33384f; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 15px; box-sizing: border-box; }
 
-        /* Sklep Brands */
-        .store-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px; }
-        .brand-card { background: #16161e; border: 1px solid #333; padding: 15px; border-radius: 8px; text-align: center; }
-        .brand-card h3 { font-family: 'Press Start 2P'; font-size: 0.8rem; color: #ff00ff; }
+        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 14px; font-family: 'Press Start 2P', cursive; font-size: 0.7rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; transition: 0.2s; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
+        .btn:hover { background: var(--accent-pink); color: #fff; box-shadow: 0 0 15px var(--accent-pink); }
+        .btn-secondary { background: #2a2e3d; color: #fff; margin-top: 8px; }
+
+        /* Ekwipunek i Szafa */
+        .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 10px; }
+        .item-card { background: #202330; border: 1px solid #3b4259; padding: 12px; border-radius: 8px; text-align: center; cursor: pointer; }
+        .item-card.equipped { border-color: var(--accent-green); background: rgba(0,255,204,0.05); }
+        .item-card h4 { margin: 5px 0 0 0; font-size: 0.8rem; font-family: 'Press Start 2P'; color: var(--accent-green); }
 
         /* Mapa */
-        #map { height: 60vh; width: 100%; border-radius: 8px; margin-top: 10px; }
+        #map { height: 60vh; width: 100%; border-radius: 12px; border: 1px solid #2a2e3d; margin-bottom: 15px; }
 
-        .btn { background: #00ffcc; color: #000; width: 100%; padding: 15px; font-family: 'Press Start 2P', cursive; font-size: 0.8rem; border: none; cursor: pointer; border-radius: 6px; font-weight: bold; margin-top: 15px; box-shadow: 0 0 10px rgba(0,255,204,0.3); }
-        .btn:hover { background: #ff00ff; color: #fff; }
+        /* Tablica Ogłoszeń (Praca / Remonty / Sąsiedzi) */
+        .quest-item { background: #202330; border-left: 4px solid var(--accent-pink); padding: 12px; border-radius: 6px; margin-bottom: 10px; }
+        .quest-item h4 { margin: 0 0 5px 0; font-size: 0.85rem; color: #fff; }
+        .quest-item p { margin: 0; font-size: 0.8rem; color: var(--text-muted); }
 
-        /* Nawigacja Dolna */
-        nav { display: flex; background: #121218; border-top: 2px solid #333; position: fixed; bottom: 0; width: 100%; }
-        nav button { flex: 1; background: none; border: none; color: #888; padding: 15px; font-family: 'Press Start 2P'; font-size: 0.5rem; cursor: pointer; }
-        nav button.active { color: #00ffcc; border-top: 2px solid #00ffcc; background: #16161e; }
+        /* Nawigacja dolna */
+        nav { display: flex; background: #12131a; border-top: 2px solid #2a2e3d; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; }
+        nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 14px 5px; font-family: 'Press Start 2P'; font-size: 0.45rem; cursor: pointer; text-align: center; }
+        nav button.active { color: var(--accent-green); background: #1a1c26; border-top: 2px solid var(--accent-green); }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>GEOVERSE</h1>
+        <h1>GEOVERSE v0.9 BETA</h1>
+        <span id="headerStatus" style="font-size: 0.6rem; color: var(--accent-green); font-family: 'Press Start 2P';">● LIVE GPS</span>
     </header>
 
-    <div id="screen-avatar" class="screen active">
-        <h2 style="font-family: 'Press Start 2P'; font-size: 0.9rem; color: #ff00ff; text-align: center;">STWÓRZ AWATAR</h2>
-        <div class="avatar-preview" id="avatarIcon">🧥</div>
-        
-        <div class="form-group">
-            <label>Pseudonim Gracza</label>
-            <input type="text" id="playerName" value="CyberGracz" />
-        </div>
+    <div id="screen-profile" class="screen active">
+        <div class="card">
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-pink); margin-top:0;">TWÓJ AWATAR</h3>
+            <div class="avatar-box" id="avatarDisplay">🧑‍💼</div>
+            
+            <label>Pseudonim w GeoVerse</label>
+            <input type="text" id="inputName" value="Krzysztof Budowlaniec" />
 
-        <div class="form-group">
-            <label>Styl Bazowy Ubioru</label>
-            <select id="playerStyle" onchange="updatePreview()">
-                <option value="🧥">Streetwear (H&M Style)</option>
-                <option value="👟">Sport (Nike Runner)</option>
-                <option value="🦾">Cyberpunk Techwear</option>
+            <label>Wybierz bazę postaci</label>
+            <select id="inputAvatarType" onchange="updateAvatarPreview()">
+                <option value="🧑‍💼">Profesjonalista / Inwestor</option>
+                <option value="👷‍♂️">Fachowiec / Remonty (Castorama Team)</option>
+                <option value="🏃‍♀️">Aktywny Mieszkaniec</option>
             </select>
-        </div>
 
-        <button class="btn" onclick="switchScreen('screen-map')">ZAPISZ I WYJDŹ NA MAPĘ</button>
+            <button class="btn" onclick="saveProfile()">ZAPISZ PROFIL</button>
+        </div>
     </div>
 
-    <div id="screen-store" class="screen">
-        <h2 style="font-family: 'Press Start 2P'; font-size: 0.9rem; color: #00ffcc; text-align: center;">SKLEPY PARTNERSKIE</h2>
-        <p style="font-size: 0.8rem; color: #aaa; text-align: center;">Zrób zakupy w realu, zeskanuj paragon i odblokuj cyfrowy ciuch dla postaci!</p>
-        
-        <div class="store-grid">
-            <div class="brand-card">
-                <h3>NIKE</h3>
-                <p style="font-size: 0.7rem;">Limitowane sneakersy Air Geo</p>
-                <button class="btn" style="padding: 8px; font-size: 0.5rem;" onclick="buyItem('👟 Nike Air')">ZESKANUJ ZAKUP</button>
-            </div>
-            <div class="brand-card">
-                <h3>H&M</h3>
-                <p style="font-size: 0.7rem;">Kolekcja Eco Urban Jacket</p>
-                <button class="btn" style="padding: 8px; font-size: 0.5rem;" onclick="buyItem('🧥 H&M Urban')">ZESKANUJ ZAKUP</button>
-            </div>
+    <div id="screen-wardrobe" class="screen">
+        <div class="card">
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">SZAFA / SKRZYNIA UBRAŃ</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Ubrania kupione wczoraj w galerii Manufaktura Łódź lub w Castoramie. Załóż je na swój awatar!</p>
+            
+            <div class="inventory-grid" id="inventoryContainer">
+                </div>
         </div>
+        <button class="btn btn-secondary" onclick="simulateNewShopping()">+ ZESKANUJ NOWY ZAKUP (PARAGON QR)</button>
     </div>
 
     <div id="screen-map" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <span id="displayProfile" style="font-size: 0.8rem; color: #00ffcc; font-family:'Press Start 2P';">Gracz</span>
-            <span id="inventoryStatus" style="font-size: 0.7rem; color: #ff00ff;">Ekwipunek: Bazowy</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+            <span id="mapUserLabel" style="font-size:0.75rem; color:var(--accent-green); font-family:'Press Start 2P';">Profil: Gracz</span>
+            <span style="font-size:0.7rem; color:var(--accent-pink);">Zasięg: Łódź / Okolica</span>
         </div>
         <div id="map"></div>
+        <p style="font-size: 0.75rem; text-align:center; color: var(--text-muted);">Widisz innych graczy i punkty usługowe w czasie rzeczywistym na drodze.</p>
+    </div>
+
+    <div id="screen-quests" class="screen">
+        <div class="card">
+            <h3 style="font-family: 'Press Start 2P'; font-size: 0.8rem; color: var(--accent-green); margin-top:0;">LOKALNY RYNEK ZLECEŃ</h3>
+            <p style="font-size: 0.8rem; color: var(--text-muted);">Pomoc sąsiedzka, zlecenia remontowe, szukanie ekipy w drodze z Castoramy.</p>
+            
+            <div id="questList">
+                <div class="quest-item">
+                    <h4>Remont łazienki - ul. Piotrkowska</h4>
+                    <p>Szukam kogoś do ułożenia płytek i hydrauliki. Materiały kupione w Castoramie! 💰 2500 PLN</p>
+                </div>
+                <div class="quest-item">
+                    <h4>Pomoc wniesienia kanapy z Manufaktury</h4>
+                    <p>Potrzebna jedna osoba na 15 minut dzisiaj po południu. 💰 80 PLN</p>
+                </div>
+            </div>
+        </div>
+        <button class="btn" onclick="addNewQuestPrompt()">+ DODAJ OGŁOSZENIE / ZLECENIE</button>
     </div>
 
     <nav>
-        <button id="nav-avatar" class="active" onclick="switchScreen('screen-avatar')">POSTAĆ</button>
-        <button id="nav-store" onclick="switchScreen('screen-store')">SKLEPY</button>
-        <button id="nav-map" onclick="switchScreen('screen-map')">ŚWIAT</button>
+        <button id="nav-profile" class="active" onclick="switchTab('screen-profile', this)">POSTAĆ</button>
+        <button id="nav-wardrobe" onclick="switchTab('screen-wardrobe', this)">SZAFA</button>
+        <button id="nav-map" onclick="switchTab('screen-map', this)">MAPA GPS</button>
+        <button id="nav-quests" onclick="switchTab('screen-quests', this)">ZLECENIA</button>
     </nav>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         let map, userMarker;
-        let userData = { name: "CyberGracz", style: "🧥", item: "Brak" };
+        let userData = {
+            name: "Krzysztof Budowlaniec",
+            avatarIcon: "👷‍♂️",
+            equippedOutfit: "Kombinezon Roboczy (Castorama)"
+        };
 
-        function switchScreen(screenId) {
+        // Magazyn ubrań gracza (zdobyte z realnych zakupów)
+        let playerInventory = [
+            { id: 1, name: "Kombinezon Roboczy (Castorama)", icon: "🦺", category: "Praca" },
+            { id: 2, name: "Kurtka skórzana (Manufaktura Łódź)", icon: "🧥", category: "Moda" },
+            { id: 3, name: "Sneakersy Air (Deichmann)", icon: "👟", category: "Buty" }
+        ];
+
+        function switchTab(screenId, btnElement) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-            
+
             document.getElementById(screenId).classList.add('active');
-            
-            if(screenId === 'screen-avatar') document.getElementById('nav-avatar').classList.add('active');
-            if(screenId === 'screen-store') document.getElementById('nav-store').classList.add('active');
+            btnElement.classList.add('active');
+
+            if(screenId === 'screen-wardrobe') renderInventory();
             if(screenId === 'screen-map') {
-                document.getElementById('nav-map').classList.add('active');
-                updateMapProfile();
-                initMap();
+                setTimeout(() => { initMap(); }, 200);
             }
         }
 
-        function updatePreview() {
-            let style = document.getElementById('playerStyle').value;
-            document.getElementById('avatarIcon').innerText = style;
+        function updateAvatarPreview() {
+            let type = document.getElementById('inputAvatarType').value;
+            document.getElementById('avatarDisplay').innerText = type;
         }
 
-        function buyItem(itemName) {
-            userData.item = itemName;
-            alert(`Sukces! Zeskanowano paragon. Dodano do ekwipunku: ${itemName}! Awatar został zaktualizowany.`);
-            document.getElementById('inventoryStatus').innerText = `Ciuch: ${itemName}`;
-            switchScreen('screen-map');
+        function saveProfile() {
+            userData.name = document.getElementById('inputName').value;
+            userData.avatarIcon = document.getElementById('inputAvatarType').value;
+            alert("Profil i awatar zostały zaktualizowane w świecie GeoVerse!");
+            document.getElementById('mapUserLabel').innerText = `${userData.avatarIcon}${userData.name}`;
         }
 
-        function updateMapProfile() {
-            userData.name = document.getElementById('playerName').value;
-            userData.style = document.getElementById('playerStyle').value;
-            document.getElementById('displayProfile').innerText = `${userData.style} ${userData.name}`;
+        function renderInventory() {
+            let container = document.getElementById('inventoryContainer');
+            container.innerHTML = "";
+            playerInventory.forEach(item => {
+                let isEquipped = (userData.equippedOutfit === item.name);
+                container.innerHTML += `
+                    <div class="item-card ${isEquipped ? 'equipped' : ''}" onclick="equipItem('${item.name}')">
+                        <div style="font-size: 2rem;">${item.icon}</div>
+                        <h4>${item.name}</h4>
+                        <p style="font-size:0.7rem; color:#888; margin:5px 0 0 0;">${isEquipped ? '★ ZAŁOŻONE' : 'Kliknij, aby założyć'}</p>
+                    </div>
+                `;
+            });
         }
 
-        function initMap() {
-            if(map) {
-                map.invalidateSize();
-                return;
+        function equipItem(itemName) {
+            userData.equippedOutfit = itemName;
+            renderInventory();
+            alert(`Awatar założył: ${itemName}! Zmiana jest widoczna na mapie dla wszystkich przechodniów.`);
+        }
+
+        function simulateNewShopping() {
+            let newItemName = prompt("Wpisz nazwę rzeczy kupionej w galerii (np. Nowa bluza z H&M):", "Bluza H&M");
+            if(newItemName) {
+                playerInventory.push({ id: Date.now(), name: newItemName, icon: "🛍️", category: "Moda" });
+                renderInventory();
+                alert(`Zeskanowano paragon! Dodano do szafy: ${newItemName}`);
             }
-            
-            map = L.map('map').setView([50.0647, 19.9450], 15);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19,
-                attribution: '&copy; OpenStreetMap'
-            }).addTo(map);
-
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function(pos) {
-                    let lat = pos.coords.latitude;
-                    let lon = pos.coords.longitude;
-                    map.setView([lat, lon], 16);
-                    userMarker = L.marker([lat, lon]).addTo(map)
-                        .bindPopup(`<b>${userData.name}</b><br>Ubiór: ${userData.style} (${userData.item})`)
-                        .openPopup();
-                });
-            }
         }
-    </script>
-</body>
-</html>
+
+        function addNewQuestPrompt() {
+            let qTitle = prompt("Tytuł zlecenia / ogłoszenia (np. Naprawa kranu, szukam ekipy):");
+            let qDesc = prompt("Opis i budżet (np. ul. Zachodnia, płace 300zł):");
+            if(qTitle && qDesc) {
+                let list = document.getElementById('questList');
+                list.innerHTML = `
+                    <div
