@@ -70,7 +70,7 @@ class GeoVerseTibiaApp {
             this.state.outfit = document.getElementById('selectOutfit').value;
             this.state.weapon = document.getElementById('selectWeapon').value;
             this.state.addon = document.getElementById('selectAddon').value;
-            this.state.voc = document.getElementById('selectVoc').value;
+            this.state.voc = document.getElementById('inputVoc').value;
             
             this.saveState();
             this.renderAll();
@@ -95,7 +95,7 @@ class GeoVerseTibiaApp {
                 this.renderAll();
                 this.showToast("[QUEST] Teren zabezpieczony! +500 GP");
             } catch (err) {
-                this.showToast("[ERROR] Brak sygnału z orka: " + err);
+                this.showToast("[ERROR] Brak sygnału GPS: " + err);
             }
         });
 
@@ -138,7 +138,7 @@ class GeoVerseTibiaApp {
         toast.style.padding = '8px 12px';
         toast.style.marginBottom = '6px';
         toast.style.fontSize = '0.7rem';
-        toast.style.fontFamily = 'Courier New', monospace;
+        toast.style.fontFamily = 'Courier New, monospace';
         toast.style.boxShadow = '3px 3px 0px #000';
         toast.innerText = msg;
         container.appendChild(toast);
