@@ -19,11 +19,12 @@ class GeoVersePixelApp {
                 { id: 3, name: "Nike Point", level: 1, income: 150 }
             ],
             feed: [
-                { time: "13:45", author: "System", text: "Załadowano silnik izometryczny miast Phygital." }
+                { time: "13:45", author: "System", text: "Załadowano izometryczną mapę sektorów." }
             ]
         };
 
         this.cloud = new CloudSync();
+        this.map = null;
         this.init();
     }
 
@@ -31,6 +32,7 @@ class GeoVersePixelApp {
         this.loadState();
         this.initNavigation();
         this.initUI();
+        this.initMap();
         this.renderAll();
     }
 
@@ -54,6 +56,9 @@ class GeoVersePixelApp {
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
                 btn.classList.add('active');
                 document.getElementById(target).classList.add('active');
+                if (target === 'screen-map' && this.map) {
+                    setTimeout(() => this.map.invalidateSize(), 200);
+                }
             });
         });
     }
@@ -101,6 +106,40 @@ class GeoVersePixelApp {
                 localStorage.removeItem('geoverse_pixel_state');
                 location.reload();
             }
+        });
+    }
+
+    initMap() {
+        if (typeof L === 'undefined') return;
+        // Współrzędne centrum sektora
+        const centerLat = 50.0266;
+        const centerLng = 19.2334;
+
+        this.map = L.map('map-view', { zoomControl: false }).setView([centerLat, centerLng], 15);
+        
+        // Stylowane kafelki mapy pasujące do mrocznego klimatu retro
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            maxZoom: 19
+        }).addTo(this.map);
+
+        // Dodanie interaktywnych punktów partnerów w stylu pinezek z grafik
+        const partners = [
+            { name: "ZARA HUB", lat: 50.0280, lng: 19.2310, icon: "🧥", desc: "Sklep partnerski ZARA - zrealizuj quest zakupowy" },
+            { name: "ROSSMANN ZONE", lat: 50.0250, lng: 19.2360, icon: "🧴", desc: "Strefa Beauty & Health Rossmann" },
+            { name: "NIKE POINT", lat: 50.0290, lng: 19.2370, icon: "👟", desc: "Arena Sportowa Nike" }
+        ];
+
+        partners.forEach(p => {
+            const customIcon = L.divIcon({
+                className: 'custom-pixel-pin',
+                html: `<div style="background:#0d1520; border:2px solid #00ffcc; color:#00ffcc; padding:4px 8px; font-size:0.6rem; font-family:'Courier New', monospace; font-weight:bold; box-shadow: 2px 2px 0px #000; text-align:center;">${p.icon} ${p.name}</div>`,
+                iconSize: [110, 30],
+                iconAnchor: [55, 15]
+            });
+
+            L.marker([p.lat, p.lng], { icon: customIcon })
+                .addTo(this.map)
+                .bindPopup(`<b>${p.name}</b><br>${p.desc}`);
         });
     }
 
