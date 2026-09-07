@@ -1,0 +1,17 @@
+import { AppState } from '../core/state.js';
+
+export function initMapModule(containerId) {
+    const state = AppState.load();
+    const map = L.map(containerId, { zoomControl: false, attributionControl: false }).setView([51.7592, 19.4559], 15);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png').addTo(map);
+
+    if (navigator.geolocation) {
+        navigator.geolocation.watchPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            L.marker([latitude, longitude], {
+                icon: L.divIcon({ html: `<div style="font-size:24px;">${state.player.icon}</div>`, iconSize: [30, 30] })
+            }).addTo(map);
+        });
+    }
+    return map;
+}
