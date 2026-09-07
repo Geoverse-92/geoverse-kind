@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GeoVerse Phygital Pixel</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -18,9 +17,17 @@
 
         <!-- Main Content -->
         <main class="content">
-            <!-- MAP SCREEN -->
+            <!-- MAP SCREEN - IZOMETRYCZNY PIXEL ART -->
             <div id="screen-map" class="screen active">
-                <div id="map-view" style="width: 100%; height: 100%;"></div>
+                <div class="isometric-canvas-container">
+                    <div class="pixel-city-bg">
+                        <div class="pixel-speech-bubble" style="top: 25%; left: 18%;">SPRZDAM ROWER</div>
+                        <div class="pixel-speech-bubble" style="top: 45%; right: 20%; background: #112222; color: #00ffcc; border-color: #00ffcc;">ZLECENIA: ZARA</div>
+                        <div class="hex-grid-overlay"></div>
+                        <div style="font-size: 3rem; z-index: 4; text-shadow: 2px 2px #000;">🏰🚲</div>
+                        <div style="font-size: 0.65rem; color: var(--accent-neon); margin-top: 10px; font-weight: bold; background: rgba(0,0,0,0.8); padding: 4px 8px; border: 1px solid var(--accent-neon);">GEOVERSE: SEKTOR 9</div>
+                    </div>
+                </div>
                 <div class="map-actions-overlay">
                     <button id="btnCheckIn" class="btn-action">🌐 Zamelduj się w Heksagonie</button>
                 </div>
@@ -28,86 +35,81 @@
 
             <!-- PROFILE SCREEN / AVATAR GENERATOR -->
             <div id="screen-profile" class="screen">
-                <h2 style="font-size: 0.8rem; margin-bottom: 8px; color: var(--accent-neon);">[KREATOR POSTACI & AVATAR]</h2>
+                <h2 style="font-size: 0.75rem; margin-bottom: 6px; color: var(--accent-neon);">[KREATOR POSTACI]</h2>
                 <div class="card" style="text-align: center;">
                     <div id="avatarDisplay" class="pixel-avatar-box">🧢🧥</div>
-                    <div id="profileNameDisplay" style="font-weight: bold; font-size: 0.8rem;">Agent_Rook</div>
-                    <div id="profileClassDisplay" style="color: var(--accent-neon); font-size: 0.65rem;">[Cyber Courier]</div>
-                    <div id="currentEquipmentLabel" style="font-size: 0.55rem; margin-top: 4px; color: #8b949e;">Sprzęt: 🚲 | Aura: 🟢</div>
+                    <div id="profileNameDisplay" style="font-weight: bold; font-size: 0.75rem;">Agent_Rook</div>
+                    <div id="profileClassDisplay" style="color: var(--accent-neon); font-size: 0.6rem;">[Cyber Courier]</div>
+                    <div id="currentEquipmentLabel" style="font-size: 0.5rem; margin-top: 4px; color: #8b949e;">Sprzęt: 🚲 | Aura: 🟢</div>
                 </div>
                 <div class="card">
-                    <h3 style="font-size: 0.7rem; margin-bottom: 6px;">Warsztat Wyglądu i Opcji</h3>
+                    <h3 style="font-size: 0.65rem; margin-bottom: 4px;">Warsztat Wyglądu</h3>
                     <div class="customizer-grid">
                         <div>
-                            <label style="font-size: 0.5rem;">Nick Agenta:</label>
+                            <label style="font-size: 0.45rem;">Nick:</label>
                             <input type="text" id="inputName" value="Agent_Rook" />
                         </div>
                         <div>
-                            <label style="font-size: 0.5rem;">Rola / Klasa:</label>
+                            <label style="font-size: 0.45rem;">Rola:</label>
                             <select id="selectVoc">
                                 <option value="Cyber Courier">Cyber Courier</option>
                                 <option value="Street Merchant">Street Merchant</option>
                                 <option value="Data Warden">Data Warden</option>
-                                <option value="Grid Runner">Grid Runner</option>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.5rem;">Nakrycie głowy:</label>
+                            <label style="font-size: 0.45rem;">Głowa:</label>
                             <select id="selectHead">
                                 <option value="🧢">Czapka z daszkiem</option>
                                 <option value="🪖">Hełm Taktyczny</option>
                                 <option value="🤠">Kapelusz Kowbojski</option>
-                                <option value="🤖">Cyber Maska</option>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.5rem;">Strój / Kurtka:</label>
+                            <label style="font-size: 0.45rem;">Strój:</label>
                             <select id="selectOutfit">
                                 <option value="🧥">Kurtka skórzana</option>
                                 <option value="👕">Koszulka sieciowa</option>
-                                <option value="🦺">Kamizelka ostrzegawcza</option>
-                                <option value="🥋">Pancerz z włókna</option>
+                                <option value="🦺">Kamizelka</option>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.5rem;">Pojazd / Sprzęt:</label>
+                            <label style="font-size: 0.45rem;">Pojazd:</label>
                             <select id="selectWeapon">
                                 <option value="🚲">Rower miejski</option>
                                 <option value="🛵">Skuter elektryczny</option>
-                                <option value="🛹">Deskorolka antygrawitacyjna</option>
-                                <option value="📦">Paczka kurierska</option>
+                                <option value="🛹">Deskorolka</option>
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.5rem;">Efekt / Ikona:</label>
+                            <label style="font-size: 0.45rem;">Aura:</label>
                             <select id="selectAddon">
                                 <option value="🟢">Zielona aura</option>
                                 <option value="⚡">Wyładowanie</option>
                                 <option value="🔥">Płomień</option>
-                                <option value="⭐">Gwiazda</option>
                             </select>
                         </div>
                     </div>
-                    <button id="btnSaveProfile" class="btn-action" style="margin-top: 10px;">Zapisz i Wygeneruj Postać</button>
-                    <button id="btnResetAccount" class="btn-action" style="margin-top: 6px; background: #541212; border-color: #f85149;">Reset Postaci (Hard Reset)</button>
+                    <button id="btnSaveProfile" class="btn-action" style="margin-top: 8px;">Zapisz Postać</button>
+                    <button id="btnResetAccount" class="btn-action" style="margin-top: 5px; background: #541212; border-color: #f85149;">Reset</button>
                 </div>
             </div>
 
             <!-- HOUSING / PARTNERS SCREEN -->
             <div id="screen-housing" class="screen">
-                <h2>Strefy Partnerskie & Biznesy</h2>
-                <div id="housingGrid" class="housing-grid" style="margin-top: 8px;"></div>
-                <div class="card" style="margin-top: 10px;">
-                    <h3>Skaner Paragonów</h3>
-                    <p style="font-size: 0.6rem; margin-bottom: 6px;">Prześlij dowód transakcji u partnerów (Zara, Rossmann, Nike), aby przejąć prowizję.</p>
-                    <button id="btnOpenScanner" class="btn-action">📷 Zeskanuj Paragon / Dowód</button>
+                <h2 style="font-size: 0.75rem; margin-bottom: 6px;">Strefy Partnerskie</h2>
+                <div id="housingGrid" class="housing-grid" style="margin-top: 4px;"></div>
+                <div class="card" style="margin-top: 8px;">
+                    <h3 style="font-size: 0.65rem;">Skaner Paragonów</h3>
+                    <p style="font-size: 0.55rem; margin-bottom: 5px;">Prześlij dowód transakcji u partnerów (Zara, Rossmann), aby przejąć prowizję.</p>
+                    <button id="btnOpenScanner" class="btn-action">📷 Zeskanuj Dowód</button>
                 </div>
             </div>
 
             <!-- FEED SCREEN -->
             <div id="screen-feed" class="screen">
-                <h2>Logi Aktywności Świata</h2>
-                <div id="portalFeed" style="margin-top: 6px;"></div>
+                <h2 style="font-size: 0.75rem; margin-bottom: 6px;">Logi Świata</h2>
+                <div id="portalFeed" style="margin-top: 4px;"></div>
             </div>
         </main>
 
@@ -119,10 +121,9 @@
             <button data-target="screen-profile">👤 PROFIL</button>
         </nav>
 
-        <div id="toast-container" style="position: fixed; bottom: 60px; left: 12px; right: 12px; z-index: 9999;"></div>
+        <div id="toast-container" style="position: fixed; bottom: 55px; left: 10px; right: 10px; z-index: 9999;"></div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script type="module" src="src/core/app.js"></script>
 </body>
 </html>
