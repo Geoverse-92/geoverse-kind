@@ -1,0 +1,6 @@
+{
+  "appId": "com.geoverse.app",
+  "appName": "GeoVerse",
+  "webDir": "www",
+  "bundledWebRuntime": false
+}
