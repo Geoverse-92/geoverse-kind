@@ -1,25 +1,25 @@
 import { NativeBridge } from './native.js';
 import { CloudSync } from './cloud.js';
 
-class GeoVerseTibiaApp {
+class GeoVersePixelApp {
     constructor() {
         this.state = {
-            lvl: 8,
-            gold: 3450,
-            vouchers: 12,
-            name: "Knight Rook",
-            head: "🧑‍🦰",
-            outfit: "🛡️",
-            weapon: "⚔️",
-            addon: "✨",
-            voc: "Knight",
+            lvl: 12,
+            gold: 5400,
+            vouchers: 15,
+            name: "Agent_Rook",
+            head: "🧢",
+            outfit: "🧥",
+            weapon: "🚲",
+            addon: "🟢",
+            voc: "Cyber Courier",
             housing: [
-                { id: 1, name: "Depot Thais", level: 2, income: 150 },
-                { id: 2, name: "Domek Carlin", level: 1, income: 75 },
-                { id: 3, name: "Puste Guildhall", level: 0, income: 0 }
+                { id: 1, name: "Zara Hub", level: 2, income: 200 },
+                { id: 2, name: "Rossman Zone", level: 1, income: 100 },
+                { id: 3, name: "Nike Point", level: 0, income: 0 }
             ],
             feed: [
-                { time: "13:00", author: "Oracle", text: "Witaj w świecie Phygital Tibia. Wybierz swoją ścieżkę!" }
+                { time: "13:45", author: "System", text: "Zainicjalizowano izometryczny skaner miast Phygital." }
             ]
         };
 
@@ -37,14 +37,14 @@ class GeoVerseTibiaApp {
     }
 
     loadState() {
-        const saved = localStorage.getItem('geoverse_tibia_state');
+        const saved = localStorage.getItem('geoverse_pixel_state');
         if (saved) {
             try { this.state = { ...this.state, ...JSON.parse(saved) }; } catch (e) { console.error(e); }
         }
     }
 
     saveState() {
-        localStorage.setItem('geoverse_tibia_state', JSON.stringify(this.state));
+        localStorage.setItem('geoverse_pixel_state', JSON.stringify(this.state));
         this.cloud.syncUserData(this.state.name, this.state);
     }
 
@@ -65,43 +65,43 @@ class GeoVerseTibiaApp {
 
     initUI() {
         document.getElementById('btnSaveProfile').addEventListener('click', () => {
-            this.state.name = document.getElementById('inputName').value || "Knight Rook";
+            this.state.name = document.getElementById('inputName').value || "Agent_Rook";
             this.state.head = document.getElementById('selectHead').value;
             this.state.outfit = document.getElementById('selectOutfit').value;
             this.state.weapon = document.getElementById('selectWeapon').value;
             this.state.addon = document.getElementById('selectAddon').value;
-            this.state.voc = document.getElementById('inputVoc').value;
+            this.state.voc = document.getElementById('selectVoc').value;
             
             this.saveState();
             this.renderAll();
-            this.showToast("[CHAR] Postać została zaktualizowana pomyślnie!");
+            this.showToast("[OK] Tożsamość agenta zaktualizowana!");
         });
 
         document.getElementById('btnOpenScanner').addEventListener('click', async () => {
             await NativeBridge.takePicture();
-            this.state.gold += 300;
-            this.addFeedItem("Loot", "Zlootowano rzadki przedmiot z paragonu! +300 GP");
+            this.state.gold += 350;
+            this.addFeedItem("Sklep", "Zweryfikowano paragon partnerski (Zara/Rossmann). +350 PLN");
             this.saveState();
             this.renderAll();
-            this.showToast("[LOOT] Paragon zweryfikowany! +300 GP");
+            this.showToast("[LOOT] Zeskanowano dowód zakupu! +350 PLN");
         });
 
         document.getElementById('btnCheckIn').addEventListener('click', async () => {
             try {
                 const pos = await NativeBridge.getCurrentPosition();
-                this.state.gold += 500;
-                this.addFeedItem("Spawn", `Oczyszczono respawn GPS: ${pos.lat.toFixed(3)}, ${pos.lng.toFixed(3)}`);
+                this.state.gold += 600;
+                this.addFeedItem("GPS", `Zajęto heksagon: ${pos.lat.toFixed(3)}, ${pos.lng.toFixed(3)}`);
                 this.saveState();
                 this.renderAll();
-                this.showToast("[QUEST] Teren zabezpieczony! +500 GP");
+                this.showToast("[MAP] Obszar zabezpieczony! +600 PLN");
             } catch (err) {
-                this.showToast("[ERROR] Brak sygnału GPS: " + err);
+                this.showToast("[ERR] Błąd lokalizacji GPS: " + err);
             }
         });
 
         document.getElementById('btnResetAccount').addEventListener('click', () => {
-            if (confirm("Czy na pewno chcesz wykonać Temple Teleport (Reset)?")) {
-                localStorage.removeItem('geoverse_tibia_state');
+            if (confirm("Zresetować profil i postać do ustawień fabrycznych?")) {
+                localStorage.removeItem('geoverse_pixel_state');
                 location.reload();
             }
         });
@@ -115,11 +115,11 @@ class GeoVerseTibiaApp {
         }).addTo(this.map);
 
         L.circleMarker([50.0266, 19.2334], {
-            radius: 10,
-            color: '#ffcc00',
-            fillColor: '#ff0000',
-            fillOpacity: 0.8
-        }).addTo(this.map).bindPopup('<b>[THAIS] Główny Bank & Depot</b>');
+            radius: 12,
+            color: '#00ffcc',
+            fillColor: '#00ffcc',
+            fillOpacity: 0.6
+        }).addTo(this.map).bindPopup('<b>[GEOVERSE] Strefa Heksagonalna Partnera</b>');
     }
 
     addFeedItem(author, text) {
@@ -132,12 +132,12 @@ class GeoVerseTibiaApp {
         const container = document.getElementById('toast-container');
         if (!container) return;
         const toast = document.createElement('div');
-        toast.style.background = '#181820';
-        toast.style.border = '2px solid var(--accent-gold)';
-        toast.style.color = '#ffcc00';
+        toast.style.background = '#161b22';
+        toast.style.border = '2px solid var(--accent-neon)';
+        toast.style.color = '#00ffcc';
         toast.style.padding = '8px 12px';
         toast.style.marginBottom = '6px';
-        toast.style.fontSize = '0.7rem';
+        toast.style.fontSize = '0.65rem';
         toast.style.fontFamily = 'Courier New, monospace';
         toast.style.boxShadow = '3px 3px 0px #000';
         toast.innerText = msg;
@@ -152,8 +152,8 @@ class GeoVerseTibiaApp {
         
         document.getElementById('profileNameDisplay').innerText = this.state.name;
         document.getElementById('profileClassDisplay').innerText = `[${this.state.voc}]`;
-        document.getElementById('avatarDisplay').innerHTML = `${this.state.head} <span style="font-size:2rem; margin-left:-15px;">${this.state.outfit}</span>`;
-        document.getElementById('currentEquipmentLabel').innerText = `Eq: ${this.state.weapon} | Addon: ${this.state.addon}`;
+        document.getElementById('avatarDisplay').innerHTML = `${this.state.head} <span style="font-size:1.8rem; margin-left:-12px;">${this.state.outfit}</span>`;
+        document.getElementById('currentEquipmentLabel').innerText = `Sprzęt: ${this.state.weapon} | Aura: ${this.state.addon}`;
 
         const feedContainer = document.getElementById('portalFeed');
         if (feedContainer) {
@@ -169,9 +169,9 @@ class GeoVerseTibiaApp {
         if (housingContainer) {
             housingContainer.innerHTML = this.state.housing.map(h => `
                 <div class="build-slot ${h.level > 0 ? 'active' : ''}">
-                    <div style="font-size:1.2rem; margin-bottom:2px;">${h.level > 0 ? '🏰' : '⛺'}</div>
-                    <div style="font-size:0.55rem; font-weight:bold;">${h.name}</div>
-                    <div style="font-size:0.45rem; color:#00ff66;">+${h.income} GP/h</div>
+                    <div style="font-size:1.1rem; margin-bottom:2px;">${h.level > 0 ? '🏬' : '➕'}</div>
+                    <div style="font-size:0.5rem; font-weight:bold;">${h.name}</div>
+                    <div style="font-size:0.45rem; color:var(--accent-neon);">+${h.income} PLN/h</div>
                 </div>
             `).join('');
         }
@@ -179,5 +179,5 @@ class GeoVerseTibiaApp {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    window.app = new GeoVerseTibiaApp();
+    window.app = new GeoVersePixelApp();
 });
