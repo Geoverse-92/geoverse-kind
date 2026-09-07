@@ -18,7 +18,7 @@
         <div class="brand"><h1>GEOVERSE</h1></div>
         <div class="player-hud">
             <span>LVL <span id="statLvl">1</span></span>
-            <span>🪙 <span id="statGold">500</span></span>
+            <span>🪙 <span id="statGold">1000</span></span>
             <span>🎁 <span id="statVouchers">2</span></span>
         </div>
     </header>
@@ -30,7 +30,7 @@
             <div class="modal-title" id="modalTitle">Tytuł Modala</div>
             <input type="text" id="modalInput" placeholder="Wpisz wartość..." />
             <div class="modal-buttons">
-                <button class="btn btn-secondary" onclick="closeModal()">ANULUJ</button>
+                <button class="btn btn-secondary" id="modalCancelBtn">ANULUJ</button>
                 <button class="btn" id="modalConfirmBtn">ZATWIERDŹ</button>
             </div>
         </div>
@@ -40,10 +40,10 @@
     <div id="screen-portal" class="screen active">
         <div class="card" style="border-color: var(--accent-green);">
             <h3 style="color: var(--accent-green);">CENTRALA PHYGITAL</h3>
-            <p>Łączymy realny świat zakupów z globalnym MMO.</p>
+            <p>Łączymy realny świat zakupów i sklepów z globalną siecią MMO.</p>
         </div>
         <div id="portalFeed"></div>
-        <button class="btn" onclick="openPostModal()">+ DODAJ WPIS DO KRONIKI</button>
+        <button class="btn" id="btnAddPost">+ DODAJ WPIS DO KRONIKI</button>
     </div>
 
     <!-- POSTAĆ / AVATAR & AI -->
@@ -53,22 +53,22 @@
             <div class="avatar-container">
                 <div class="avatar-box" id="avatarDisplay">🧑‍💻</div>
                 <div class="avatar-info">
-                    <h3 id="profileNameDisplay" style="font-family: 'Press Start 2P', cursive;">Nowy Gracz</h3>
-                    <p id="profileClassDisplay">Wybierz ścieżkę</p>
+                    <h3 id="profileNameDisplay" style="font-family: 'Press Start 2P', cursive;">Agent</h3>
+                    <p id="profileClassDisplay">Cyber Tech</p>
                 </div>
             </div>
             <label>Identyfikator (Nick)</label>
             <input type="text" id="inputName" placeholder="Wpisz nick..." />
             <label>Profesja</label>
-            <select id="inputAvatarType" onchange="updateAvatarPreview()">
+            <select id="inputAvatarType">
                 <option value="🧑‍💼|Inwestor Korporacyjny|👔">Inwestor Korporacyjny</option>
                 <option value="👷‍♂️|Fachowiec / Remonty|🦺">Fachowiec / Remonty</option>
                 <option value="🏃‍♀️|Aktywny Mieszkaniec|👟">Aktywny Mieszkaniec</option>
-                <option value="👨‍💻|Cyber Tech|💻">Cyber Tech / IT</option>
+                <option value="👨‍💻|Cyber Tech|💻" selected>Cyber Tech / IT</option>
             </select>
-            <button class="btn" onclick="saveProfile()">ZAPISZ PROFIL</button>
-            <button class="btn btn-secondary btn-pink" style="margin-top: 10px;" onclick="triggerAiAdvisor()">🤖 PORADA AI ASYSTENTA</button>
-            <button class="btn btn-secondary btn-danger" style="margin-top: 10px; font-size: 0.5rem;" onclick="resetAccount()">⚠️ ZRESETUJ POSTAĆ</button>
+            <button class="btn" id="btnSaveProfile">ZAPISZ PROFIL</button>
+            <button class="btn btn-secondary btn-pink" style="margin-top: 10px;" id="btnAiAdvisor">🤖 PORADA AI ASYSTENTA</button>
+            <button class="btn btn-secondary btn-danger" style="margin-top: 10px; font-size: 0.5rem;" id="btnResetAccount">⚠️ ZRESETUJ POSTAĆ</button>
         </div>
     </div>
 
@@ -76,10 +76,12 @@
     <div id="screen-wardrobe" class="screen">
         <div class="card">
             <h3 style="color: var(--accent-pink);">CYFROWA SZAFA & SKLEPY</h3>
-            <p style="font-size:0.7rem;">Skanuj paragony z partnerskich sieci (Biedronka, MediaExpert, Allegro), aby zyskać unikalne itemy i bony!</p>
+            <p style="font-size:0.7rem;">Skanuj paragony z partnerskich sieci oraz zbieraj itemy AR!</p>
             <div class="inventory-grid" id="inventoryContainer"></div>
         </div>
-        <button class="btn btn-pink" onclick="openScannerModal()">📷 SKANER PARAGONÓW (OCR)</button>
+        <button class="btn btn-pink" id="btnOpenScanner">📷 SKANER PARAGONÓW (OCR)</button>
+        <button class="btn btn-blue" style="margin-top: 10px;" id="btnOpenAR">💎 SKANER SKRZYNKI AR</button>
+        <div id="ar-container" style="margin-top: 15px;"></div>
     </div>
 
     <!-- MAPA / MULTIPLAYER & STREFY -->
@@ -92,17 +94,18 @@
         <div class="card" style="padding: 10px; margin-top: 10px;">
             <p style="font-size: 0.65rem; text-align:center; margin:0;" id="currentOutfitLabel">Aktywny set: Brak</p>
         </div>
-        <button class="btn btn-blue" onclick="claimZoneReward()">📍 SPRAWDŹ CHECK-IN W SKLEPIE</button>
+        <button class="btn btn-blue" id="btnCheckIn">📍 SPRAWDŹ CHECK-IN W SKLEPIE</button>
     </div>
 
     <!-- BAZA & GILDIE -->
     <div id="screen-housing" class="screen">
         <div class="card">
-            <h3 style="color: var(--accent-gold);">BAZA GŁÓWNA & GILDIE</h3>
-            <p style="font-size:0.7rem;">Zarządzaj terytorium gildii i zbieraj pasywne zyski ze stref handlowych.</p>
+            <h3 style="color: var(--accent-gold);">BAZA GŁÓWNA & WOJNY GILDII</h3>
+            <p style="font-size:0.7rem;">Zarządzaj terytorium gildii, walcz o strefy i zbieraj pasywne zyski.</p>
             <div class="build-grid" id="housingGrid"></div>
         </div>
-        <button class="btn btn-blue" onclick="craftMaterials()">⚒️ CRAFTING ZŁOTA</button>
+        <button class="btn btn-blue" id="btnCraft">⚒️ POBIERZ ZYSK PASYWNY</button>
+        <button class="btn btn-pink" style="margin-top: 10px;" id="btnGuildWar">⚔️ ROZPOCZYNIJ WOJNĘ O STREFĘ</button>
     </div>
 
     <!-- MISJE & WYPŁATY NAGROD -->
@@ -112,20 +115,19 @@
             <p style="font-size:0.7rem;">Wymieniaj złoto na bony podarunkowe do wybranych sklepów partnerskich!</p>
             <div id="questList"></div>
         </div>
-        <button class="btn btn-pink" onclick="openVoucherShop()">🎁 WYMIEŃ NA BON SKLEPOWY</button>
-        <button class="btn btn-secondary" style="margin-top: 8px;" onclick="openQuestModal()">+ WYSTAW ZLECENIE</button>
+        <button class="btn btn-pink" id="btnVoucherShop">🎁 WYMIEŃ NA BON SKLEPOWY</button>
+        <button class="btn btn-secondary" style="margin-top: 8px;" id="btnAddQuest">+ WYSTAW ZLECENIE</button>
     </div>
 
     <nav>
-        <button id="nav-portal" class="active" onclick="switchScreen('screen-portal', this)"><i>🌐</i>PORTAL</button>
-        <button id="nav-profile" onclick="switchScreen('screen-profile', this)"><i>🧑</i>POSTAĆ</button>
-        <button id="nav-wardrobe" onclick="switchScreen('screen-wardrobe', this)"><i>👕</i>SKLEPY</button>
-        <button id="nav-map" onclick="switchScreen('screen-map', this)"><i>📍</i>MAPA</button>
-        <button id="nav-housing" onclick="switchScreen('screen-housing', this)"><i>🏠</i>GILDIA</button>
-        <button id="nav-quests" onclick="switchScreen('screen-quests', this)"><i>📜</i>BONY</button>
+        <button id="nav-portal" class="active" data-target="screen-portal"><i>🌐</i>PORTAL</button>
+        <button id="nav-profile" data-target="screen-profile"><i>🧑</i>POSTAĆ</button>
+        <button id="nav-wardrobe" data-target="screen-wardrobe"><i>👕</i>SKLEPY</button>
+        <button id="nav-map" data-target="screen-map"><i>📍</i>MAPA</button>
+        <button id="nav-housing" data-target="screen-housing"><i>🏠</i>GILDIA</button>
+        <button id="nav-quests" data-target="screen-quests"><i>📜</i>BONY</button>
     </nav>
 
-    <script src="app.js"></script>
+    <script type="module" src="./src/core/app.js"></script>
 </body>
 </html>
-
