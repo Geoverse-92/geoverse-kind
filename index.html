@@ -2,7 +2,7 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GeoVerse Phygital Pixel</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
@@ -12,13 +12,13 @@
         <!-- Top Bar -->
         <header class="top-bar">
             <div class="stat-badge">LVL: <span id="statLvl">12</span></div>
-            <div class="stat-badge">PLN: <span id="statGold">5400</span></div>
-            <div class="stat-badge">BON: <span id="statVouchers">15</span></div>
+            <div class="stat-badge">PLN: <span id="statGold">5800</span></div>
+            <div class="stat-badge">BON: <span id="statVouchers">18</span></div>
         </header>
 
         <!-- Main Content -->
         <main class="content">
-            <!-- MAP SCREEN - INTERAKTYWNA MAPA MIASTA -->
+            <!-- MAP SCREEN -->
             <div id="screen-map" class="screen active">
                 <div id="map-view" style="width: 100%; height: 100%;"></div>
                 <div class="map-actions-overlay">
@@ -26,24 +26,47 @@
                 </div>
             </div>
 
-            <!-- PROFILE SCREEN / AVATAR GENERATOR -->
+            <!-- HOUSING / PARTNERS SCREEN -->
+            <div id="screen-housing" class="screen">
+                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[STREFY PARTNERSKIE]</h2>
+                <div id="housingGrid" class="housing-grid" style="margin-bottom: 10px;"></div>
+                <div class="card">
+                    <h3 style="font-size: 0.68rem; margin-bottom: 4px;">Skaner Paragonów Phygital</h3>
+                    <p style="font-size: 0.58rem; margin-bottom: 8px; color: #8b949e; line-height: 1.3;">Prześlij dowód zakupu u partnerów (Zara, Rossmann, Nike), aby przejąć prowizję i walutę.</p>
+                    <button id="btnOpenScanner" class="btn-action">📷 Zeskanuj Dowód</button>
+                </div>
+            </div>
+
+            <!-- QUESTS SCREEN -->
+            <div id="screen-quests" class="screen">
+                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[MISJE SEKTORA]</h2>
+                <div id="questsList"></div>
+            </div>
+
+            <!-- FEED SCREEN -->
+            <div id="screen-feed" class="screen">
+                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[LOGI ŚWIATA]</h2>
+                <div id="portalFeed"></div>
+            </div>
+
+            <!-- PROFILE SCREEN -->
             <div id="screen-profile" class="screen">
-                <h2 style="font-size: 0.75rem; margin-bottom: 6px; color: var(--accent-neon);">[KREATOR POSTACI]</h2>
+                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[KREATOR POSTACI]</h2>
                 <div class="card" style="text-align: center;">
                     <div id="avatarDisplay" class="pixel-avatar-box">🧢🧥</div>
-                    <div id="profileNameDisplay" style="font-weight: bold; font-size: 0.75rem;">Agent_Rook</div>
-                    <div id="profileClassDisplay" style="color: var(--accent-neon); font-size: 0.6rem;">[Cyber Courier]</div>
-                    <div id="currentEquipmentLabel" style="font-size: 0.5rem; margin-top: 4px; color: #8b949e;">Sprzęt: 🚲 | Aura: 🟢</div>
+                    <div id="profileNameDisplay" style="font-weight: bold; font-size: 0.75rem; color: #fff;">Agent_Rook</div>
+                    <div id="profileClassDisplay" style="color: var(--accent-neon); font-size: 0.6rem; margin-top: 2px;">[Cyber Courier]</div>
+                    <div id="currentEquipmentLabel" style="font-size: 0.52rem; margin-top: 6px; color: #8b949e;">Sprzęt: 🚲 | Aura: 🟢</div>
                 </div>
                 <div class="card">
-                    <h3 style="font-size: 0.65rem; margin-bottom: 4px;">Warsztat Wyglądu</h3>
+                    <h3 style="font-size: 0.68rem; margin-bottom: 6px;">Warsztat Wyglądu</h3>
                     <div class="customizer-grid">
                         <div>
-                            <label style="font-size: 0.45rem;">Nick:</label>
+                            <label>Nick:</label>
                             <input type="text" id="inputName" value="Agent_Rook" />
                         </div>
                         <div>
-                            <label style="font-size: 0.45rem;">Rola:</label>
+                            <label>Rola:</label>
                             <select id="selectVoc">
                                 <option value="Cyber Courier">Cyber Courier</option>
                                 <option value="Street Merchant">Street Merchant</option>
@@ -51,7 +74,7 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.45rem;">Głowa:</label>
+                            <label>Głowa:</label>
                             <select id="selectHead">
                                 <option value="🧢">Czapka z daszkiem</option>
                                 <option value="🪖">Hełm Taktyczny</option>
@@ -59,7 +82,7 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.45rem;">Strój:</label>
+                            <label>Strój:</label>
                             <select id="selectOutfit">
                                 <option value="🧥">Kurtka skórzana</option>
                                 <option value="👕">Koszulka sieciowa</option>
@@ -67,7 +90,7 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.45rem;">Pojazd:</label>
+                            <label>Pojazd:</label>
                             <select id="selectWeapon">
                                 <option value="🚲">Rower miejski</option>
                                 <option value="🛵">Skuter elektryczny</option>
@@ -75,7 +98,7 @@
                             </select>
                         </div>
                         <div>
-                            <label style="font-size: 0.45rem;">Aura:</label>
+                            <label>Aura:</label>
                             <select id="selectAddon">
                                 <option value="🟢">Zielona aura</option>
                                 <option value="⚡">Wyładowanie</option>
@@ -83,26 +106,9 @@
                             </select>
                         </div>
                     </div>
-                    <button id="btnSaveProfile" class="btn-action" style="margin-top: 8px;">Zapisz Postać</button>
-                    <button id="btnResetAccount" class="btn-action" style="margin-top: 5px; background: #541212; border-color: #f85149;">Reset</button>
+                    <button id="btnSaveProfile" class="btn-action" style="margin-top: 10px;">Zapisz Postać</button>
+                    <button id="btnResetAccount" class="btn-action danger" style="margin-top: 6px;">Resetuj Postać</button>
                 </div>
-            </div>
-
-            <!-- HOUSING / PARTNERS SCREEN -->
-            <div id="screen-housing" class="screen">
-                <h2 style="font-size: 0.75rem; margin-bottom: 6px;">Strefy Partnerskie</h2>
-                <div id="housingGrid" class="housing-grid" style="margin-top: 4px;"></div>
-                <div class="card" style="margin-top: 8px;">
-                    <h3 style="font-size: 0.65rem;">Skaner Paragonów</h3>
-                    <p style="font-size: 0.55rem; margin-bottom: 5px;">Prześlij dowód transakcji u partnerów (Zara, Rossmann), aby przejąć prowizję.</p>
-                    <button id="btnOpenScanner" class="btn-action">📷 Zeskanuj Dowód</button>
-                </div>
-            </div>
-
-            <!-- FEED SCREEN -->
-            <div id="screen-feed" class="screen">
-                <h2 style="font-size: 0.75rem; margin-bottom: 6px;">Logi Świata</h2>
-                <div id="portalFeed" style="margin-top: 4px;"></div>
             </div>
         </main>
 
@@ -110,11 +116,12 @@
         <nav class="nav-bar">
             <button data-target="screen-map" class="active">🌐 MAPA</button>
             <button data-target="screen-housing">🏬 SKLEPY</button>
+            <button data-target="screen-quests">📜 MISJE</button>
             <button data-target="screen-feed">📡 LOGI</button>
             <button data-target="screen-profile">👤 PROFIL</button>
         </nav>
 
-        <div id="toast-container" style="position: fixed; bottom: 55px; left: 10px; right: 10px; z-index: 9999;"></div>
+        <div id="toast-container"></div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
