@@ -1,170 +1,68 @@
 <!DOCTYPE html>
 <html lang="pl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GeoVerse Phygital Pixel</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>GeoVerse-Kind MMO</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Leaflet CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="app">
-        <!-- Top Bar -->
-        <header class="top-bar">
-            <div class="stat-badge">LVL: <span id="statLvl">12</span></div>
-            <div class="stat-badge">PLN: <span id="statGold">5800</span></div>
-            <div class="stat-badge">BON: <span id="statVouchers">18</span></div>
-        </header>
-
-        <!-- Main Content -->
-        <main class="content">
-            <!-- MAP SCREEN -->
-            <div id="screen-map" class="screen active">
-                <div id="map-view" style="width: 100%; height: 100%;"></div>
-                <div class="map-actions-overlay">
-                    <button id="btnCheckIn" class="btn-action">🌐 Zamelduj się w Heksagonie</button>
-                </div>
-            </div>
-
-            <!-- HOUSING / PARTNERS SCREEN -->
-            <div id="screen-housing" class="screen">
-                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[STREFY PARTNERSKIE]</h2>
-                <div id="housingGrid" class="housing-grid" style="margin-bottom: 10px;"></div>
-                <div class="card">
-                    <h3 style="font-size: 0.68rem; margin-bottom: 4px;">Skaner Paragonów Phygital</h3>
-                    <p style="font-size: 0.58rem; margin-bottom: 8px; color: #8b949e; line-height: 1.3;">Prześlij dowód zakupu u partnerów (Zara, Rossmann, Nike), aby przejąć prowizję i walutę.</p>
-                    <button id="btnOpenScanner" class="btn-action">📷 Zeskanuj Dowód</button>
-                </div>
-            </div>
-
-            <!-- QUESTS SCREEN -->
-            <div id="screen-quests" class="screen">
-                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[MISJE SEKTORA]</h2>
-                <div id="questsList"></div>
-            </div>
-
-            <!-- FEED SCREEN -->
-            <div id="screen-feed" class="screen">
-                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[LOGI ŚWIATA]</h2>
-                <div id="portalFeed"></div>
-            </div>
-
-            <!-- PROFILE SCREEN -->
-            <div id="screen-profile" class="screen">
-                <h2 style="font-size: 0.75rem; margin-bottom: 8px; color: var(--accent-neon);">[KREATOR POSTACI]</h2>
-                <div class="card" style="text-align: center;">
-                    <div id="avatarDisplay" class="pixel-avatar-box">🧢🧥</div>
-                    <div id="profileNameDisplay" style="font-weight: bold; font-size: 0.75rem; color: #fff;">Agent_Rook</div>
-                    <div id="profileClassDisplay" style="color: var(--accent-neon); font-size: 0.6rem; margin-top: 2px;">[Cyber Courier]</div>
-                    <div id="currentEquipmentLabel" style="font-size: 0.52rem; margin-top: 6px; color: #8b949e;">Sprzęt: 🚲 | Aura: 🟢</div>
-                </div>
-                <div class="card">
-                    <h3 style="font-size: 0.68rem; margin-bottom: 6px;">Warsztat Wyglądu</h3>
-                    <div class="customizer-grid">
-                        <div>
-                            <label>Nick:</label>
-                            <input type="text" id="inputName" value="Agent_Rook" />
-                        </div>
-                        <div>
-                            <label>Rola:</label>
-                            <select id="selectVoc">
-                                <option value="Cyber Courier">Cyber Courier</option>
-                                <option value="Street Merchant">Street Merchant</option>
-                                <option value="Data Warden">Data Warden</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Głowa:</label>
-                            <select id="selectHead">
-                                <option value="🧢">Czapka z daszkiem</option>
-                                <option value="🪖">Hełm Taktyczny</option>
-                                <option value="🤠">Kapelusz Kowbojski</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Strój:</label>
-                            <select id="selectOutfit">
-                                <option value="🧥">Kurtka skórzana</option>
-                                <option value="👕">Koszulka sieciowa</option>
-                                <option value="🦺">Kamizelka</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Pojazd:</label>
-                            <select id="selectWeapon">
-                                <option value="🚲">Rower miejski</option>
-                                <option value="🛵">Skuter elektryczny</option>
-                                <option value="🛹">Deskorolka</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Aura:</label>
-                            <select id="selectAddon">
-                                <option value="🟢">Zielona aura</option>
-                                <option value="⚡">Wyładowanie</option>
-                                <option value="🔥">Płomień</option>
-                            </select>
-                        </div>
-                    </div>
-                    <button id="btnSaveProfile" class="btn-action" style="margin-top: 10px;">Zapisz Postać</button>
-                    <button id="btnResetAccount" class="btn-action danger" style="margin-top: 6px;">Resetuj Postać</button>
-                </div>
-            </div>
-        </main>
-
-        <!-- Bottom Navigation -->
-        <nav class="nav-bar">
-            <button data-target="screen-map" class="active">🌐 MAPA</button>
-            <button data-target="screen-housing">🏬 SKLEPY</button>
-            <button data-target="screen-quests">📜 MISJE</button>
-            <button data-target="screen-feed">📡 LOGI</button>
-            <button data-target="screen-profile">👤 PROFIL</button>
-        </nav>
-
-        <div id="toast-container"></div>
-    </div>
-
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script type="module" src="src/core/app.js"></script>
-</body>
+    
+    <!-- Font Pixel Retro -->
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    
+    <style>
+      * {
+        box-sizing: border-box;
+        image-rendering: pixelated;
+      }
+      body {
+        font-family: 'Press Start 2P', monospace;
+        background-color: #05050a;
+        color: #00ffcc;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      .pixel-avatar-marker {
+        background: #1a1a3a;
+        border: 2px solid #00ffcc;
+        box-shadow: 0 0 8px #00ffcc;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+      }
+      .pixel-brand-marker {
+        background: #3a1a3a;
+        border: 2px solid #ff00ff;
+        box-shadow: 0 0 8px #ff00ff;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+      }
+      .leaflet-popup-content-wrapper {
+        background: #121224 !important;
+        color: #00ffcc !important;
+        border: 2px solid #ff00ff !important;
+        font-family: 'Press Start 2P', monospace !important;
+        font-size: 8px !important;
+        border-radius: 0px !important;
+      }
+      .leaflet-popup-tip {
+        background: #ff00ff !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-@layer base {
-  body {
-    font-family: 'Press Start 2P', monospace;
-    font-size: 10px;
-    background-color: #05050a;
-    color: #00ffcc;
-    margin: 0;
-    padding: 0;
-    overflow: hidden;
-  }
-}
-
-/* Stylizacja pikselowa i scrollbary retro */
-.pixelated {
-  image-rendering: pixelated;
-}
-
-::-webkit-scrollbar {
-  width: 4px;
-}
-::-webkit-scrollbar-track {
-  background: #121224;
-}
-::-webkit-scrollbar-thumb {
-  background: #333366;
-}
-
-/* Dymki na mapie Leaflet w klimacie cyberpunk */
-.leaflet-popup-content-wrapper, .leaflet-popup-tip {
-  background: #121224 !important;
-  color: #00ffcc !important;
-  border: 2px solid #333366;
-  font-family: 'Press Start 2P', monospace;
-  font-size: 8px;
-  box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
-}
