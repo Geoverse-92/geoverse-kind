@@ -2,32 +2,39 @@
 <html lang="pl">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>GeoVerse-Kind MMO</title>
     
-    <!-- Tailwind CSS CDN -->
+    <!-- 1. Tailwind CSS CDN (naprawia style bez budowania) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Leaflet CSS & JS -->
+    <!-- 2. Leaflet Map CSS & JS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- Font Pixel Retro -->
+    <!-- 3. Retro Pixel-Art Font (Press Start 2P) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     
+    <!-- 4. Globalne style retro dla gry -->
     <style>
       * {
         box-sizing: border-box;
         image-rendering: pixelated;
       }
-      body {
-        font-family: 'Press Start 2P', monospace;
-        background-color: #05050a;
-        color: #00ffcc;
+      
+      html, body, #root {
+        height: 100%;
         margin: 0;
         padding: 0;
+        background-color: #05050a;
+        color: #00ffcc;
+        font-family: 'Press Start 2P', monospace;
         overflow: hidden;
       }
+
+      /* Własne ikony awatarów i sklepów na mapie */
       .pixel-avatar-marker {
         background: #1a1a3a;
         border: 2px solid #00ffcc;
@@ -38,6 +45,7 @@
         justify-content: center;
         font-size: 16px;
       }
+
       .pixel-brand-marker {
         background: #3a1a3a;
         border: 2px solid #ff00ff;
@@ -48,6 +56,8 @@
         justify-content: center;
         font-size: 14px;
       }
+
+      /* Dymki podglądu na mapie Leaflet */
       .leaflet-popup-content-wrapper {
         background: #121224 !important;
         color: #00ffcc !important;
@@ -56,8 +66,20 @@
         font-size: 8px !important;
         border-radius: 0px !important;
       }
+
       .leaflet-popup-tip {
         background: #ff00ff !important;
+      }
+
+      /* Pasek przewijania */
+      ::-webkit-scrollbar {
+        width: 4px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #121224;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #ff00ff;
       }
     </style>
   </head>
