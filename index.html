@@ -2,132 +2,145 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta name="theme-color" content="#05060a">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>GeoVerse - Ultimate Phygital MMO</title>
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GeoVerse Phygital Platform</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <header>
-        <div class="brand"><h1>GEOVERSE</h1></div>
-        <div class="player-hud">
-            <span>LVL <span id="statLvl">1</span></span>
-            <span>🪙 <span id="statGold">1000</span></span>
-            <span>🎁 <span id="statVouchers">2</span></span>
-        </div>
-    </header>
-
     <div id="toast-container"></div>
 
-    <div id="modal-overlay">
+    <div class="app-container">
+        <header class="cyber-header">
+            <div class="logo-area">
+                <span class="pulse-dot"></span>
+                <h1>GEOVERSE</h1>
+            </div>
+            <div class="hud-stats">
+                <div class="stat-badge">LVL <span id="statLvl">1</span></div>
+                <div class="stat-badge">🪙 <span id="statGold">1200</span></div>
+                <div class="stat-badge">🎁 <span id="statVouchers">2</span></div>
+            </div>
+        </header>
+
+        <main class="content-viewport">
+            <!-- PORTAL / FEED -->
+            <section id="screen-portal" class="screen active">
+                <div class="portal-hero">
+                    <h2>CENTRUM DOWODZENIA</h2>
+                    <p>Ekosystem Phygital: Łączymy świat realny z cyfrową dominacją.</p>
+                </div>
+                <div class="action-grid">
+                    <button class="btn btn-primary" id="btnAddPost">📢 NOWY WPIS</button>
+                    <button class="btn btn-secondary" id="btnAiAdvisor">🤖 DORADCA AI</button>
+                    <button class="btn btn-accent" id="btnCheckIn">📍 ZAMELDUJ SIĘ</button>
+                </div>
+                <div class="feed-container" id="portalFeed"></div>
+            </section>
+
+            <!-- MAPA GPS -->
+            <section id="screen-map" class="screen">
+                <div class="map-header-bar">
+                    <h3>SKANER LOKALNY</h3>
+                    <span id="gpsStatus" class="gps-badge">SZUKANIE GPS...</span>
+                </div>
+                <div id="map-view" class="map-frame"></div>
+            </section>
+
+            <!-- AR / SKANER -->
+            <section id="screen-ar" class="screen">
+                <div class="ar-hub">
+                    <h3>STREFA ROZSZERZONEJ RZECZYWISTOŚCI</h3>
+                    <p>Skanuj paragony partnerskie lub łap cyfrowe skrzynki w terenie.</p>
+                    <div class="ar-buttons-flex">
+                        <button class="btn btn-primary" id="btnOpenScanner">🧾 SKANUJ PARAGON</button>
+                        <button class="btn btn-accent" id="btnOpenAR">💎 URUCHOM AR</button>
+                    </div>
+                    <div id="ar-container" style="width:100%; height:300px; margin-top:15px; position:relative;"></div>
+                </div>
+            </section>
+
+            <!-- GILDIA & TERYTORIA -->
+            <section id="screen-guild" class="screen">
+                <div class="guild-container">
+                    <h3>PANEL GILDII I DOMENA</h3>
+                    <p>Przejmuj punkty handlowe, by generować pasywne zyski.</p>
+                    <div class="housing-grid" id="housingGrid"></div>
+                    <div style="margin-top: 15px; display:flex; gap:10px;">
+                        <button class="btn btn-primary" id="btnGuildWar">⚔️ BITWA O STREFĘ</button>
+                        <button class="btn btn-secondary" id="btnCraft">♻️ POBIERZ ZYSK</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ZADANIA -->
+            <section id="screen-quests" class="screen">
+                <div class="quests-container">
+                    <h3>GIEŁDA ZLECEŃ</h3>
+                    <div id="questList"></div>
+                    <button class="btn btn-primary" id="btnAddQuest" style="margin-top:15px;">➕ DODAJ ZLECENIE</button>
+                </div>
+            </section>
+
+            <!-- PROFIL / SZAFKA -->
+            <section id="screen-profile" class="screen">
+                <div class="profile-card">
+                    <div class="avatar-box" id="avatarDisplay">👨‍💻</div>
+                    <h3 id="profileNameDisplay">Agent</h3>
+                    <p id="profileClassDisplay" style="color:var(--accent-cyan); font-size:0.7rem;">Cyber Tech</p>
+                    <p id="currentOutfitLabel" style="font-size:0.6rem; color:var(--accent-gold); margin-top:5px;"></p>
+                </div>
+
+                <div class="form-group" style="margin-top:15px;">
+                    <label>Zmień Pseudonim:</label>
+                    <input type="text" id="inputName" class="cyber-input" placeholder="Wpisz nick...">
+                </div>
+
+                <div class="form-group">
+                    <label>Wybierz Awatar i Klasę:</label>
+                    <select id="inputAvatarType" class="cyber-input">
+                        <option value="👨‍💻|Cyber Tech|💻">👨‍💻 Cyber Tech</option>
+                        <option value="🥷|Netrunner|⚡">🥷 Netrunner</option>
+                        <option value="🚀|Street Samurai|🔥">🚀 Street Samurai</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-primary" id="btnSaveProfile" style="width:100%; margin-top:10px;">ZAPISZ PROFIL</button>
+
+                <h4 style="margin-top:20px; font-family:'Press Start 2P'; font-size:0.7rem;">SZAFKA / EQ</h4>
+                <div class="inventory-grid" id="inventoryContainer"></div>
+
+                <div style="margin-top: 25px; border-top:1px dashed #333; padding-top:15px;">
+                    <button class="btn btn-accent" id="btnVoucherShop" style="width:100%; margin-bottom:10px;">🎁 WYMIEŃ NA BONY</button>
+                    <button class="btn btn-danger" id="btnResetAccount" style="width:100%;">⚠️ RESET POSTACI</button>
+                </div>
+            </section>
+        </main>
+
+        <nav class="cyber-nav">
+            <button id="nav-portal" class="active" data-target="screen-portal">🌐 Portal</button>
+            <button id="nav-map" data-target="screen-map">🗺️ Mapa</button>
+            <button id="nav-ar" data-target="screen-ar">💎 AR</button>
+            <button id="nav-guild" data-target="screen-guild">🛡️ Gildia</button>
+            <button id="nav-quests" data-target="screen-quests">📜 Zadania</button>
+            <button id="nav-profile" data-target="screen-profile">🧬 Profil</button>
+        </nav>
+    </div>
+
+    <!-- MODAL -->
+    <div class="modal-overlay" id="modal-overlay">
         <div class="modal-box">
-            <div class="modal-title" id="modalTitle">Tytuł Modala</div>
-            <input type="text" id="modalInput" placeholder="Wpisz wartość..." />
+            <h3 id="modalTitle">TYTUŁ</h3>
+            <input type="text" id="modalInput" class="cyber-input" placeholder="Wpisz wartość...">
             <div class="modal-buttons">
                 <button class="btn btn-secondary" id="modalCancelBtn">ANULUJ</button>
-                <button class="btn" id="modalConfirmBtn">ZATWIERDŹ</button>
+                <button class="btn btn-primary" id="modalConfirmBtn">ZATWIERDŹ</button>
             </div>
         </div>
     </div>
 
-    <!-- PORTAL / KRONIKA -->
-    <div id="screen-portal" class="screen active">
-        <div class="card" style="border-color: var(--accent-green);">
-            <h3 style="color: var(--accent-green);">CENTRALA PHYGITAL</h3>
-            <p>Łączymy realny świat zakupów i sklepów z globalną siecią MMO.</p>
-        </div>
-        <div id="portalFeed"></div>
-        <button class="btn" id="btnAddPost">+ DODAJ WPIS DO KRONIKI</button>
-    </div>
-
-    <!-- POSTAĆ / AVATAR & AI -->
-    <div id="screen-profile" class="screen">
-        <div class="card">
-            <h3 style="color: var(--accent-green);">KREACJA AWATARA & AI</h3>
-            <div class="avatar-container">
-                <div class="avatar-box" id="avatarDisplay">🧑‍💻</div>
-                <div class="avatar-info">
-                    <h3 id="profileNameDisplay" style="font-family: 'Press Start 2P', cursive;">Agent</h3>
-                    <p id="profileClassDisplay">Cyber Tech</p>
-                </div>
-            </div>
-            <label>Identyfikator (Nick)</label>
-            <input type="text" id="inputName" placeholder="Wpisz nick..." />
-            <label>Profesja</label>
-            <select id="inputAvatarType">
-                <option value="🧑‍💼|Inwestor Korporacyjny|👔">Inwestor Korporacyjny</option>
-                <option value="👷‍♂️|Fachowiec / Remonty|🦺">Fachowiec / Remonty</option>
-                <option value="🏃‍♀️|Aktywny Mieszkaniec|👟">Aktywny Mieszkaniec</option>
-                <option value="👨‍💻|Cyber Tech|💻" selected>Cyber Tech / IT</option>
-            </select>
-            <button class="btn" id="btnSaveProfile">ZAPISZ PROFIL</button>
-            <button class="btn btn-secondary btn-pink" style="margin-top: 10px;" id="btnAiAdvisor">🤖 PORADA AI ASYSTENTA</button>
-            <button class="btn btn-secondary btn-danger" style="margin-top: 10px; font-size: 0.5rem;" id="btnResetAccount">⚠️ ZRESETUJ POSTAĆ</button>
-        </div>
-    </div>
-
-    <!-- SZAFA & SKANER SKLEPOWY -->
-    <div id="screen-wardrobe" class="screen">
-        <div class="card">
-            <h3 style="color: var(--accent-pink);">CYFROWA SZAFA & SKLEPY</h3>
-            <p style="font-size:0.7rem;">Skanuj paragony z partnerskich sieci oraz zbieraj itemy AR!</p>
-            <div class="inventory-grid" id="inventoryContainer"></div>
-        </div>
-        <button class="btn btn-pink" id="btnOpenScanner">📷 SKANER PARAGONÓW (OCR)</button>
-        <button class="btn btn-blue" style="margin-top: 10px;" id="btnOpenAR">💎 SKANER SKRZYNKI AR</button>
-        <div id="ar-container" style="margin-top: 15px;"></div>
-    </div>
-
-    <!-- MAPA / MULTIPLAYER & STREFY -->
-    <div id="screen-map" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
-            <span style="font-size:0.55rem; color:var(--accent-green); font-family:'Press Start 2P', cursive;">GPS MULTIPLAYER</span>
-            <span style="font-size:0.55rem; color:var(--accent-pink); font-family:'Press Start 2P', cursive;" id="gpsStatus">📡 Skanowanie stref...</span>
-        </div>
-        <div id="map-view"></div>
-        <div class="card" style="padding: 10px; margin-top: 10px;">
-            <p style="font-size: 0.65rem; text-align:center; margin:0;" id="currentOutfitLabel">Aktywny set: Brak</p>
-        </div>
-        <button class="btn btn-blue" id="btnCheckIn">📍 SPRAWDŹ CHECK-IN W SKLEPIE</button>
-    </div>
-
-    <!-- BAZA & GILDIE -->
-    <div id="screen-housing" class="screen">
-        <div class="card">
-            <h3 style="color: var(--accent-gold);">BAZA GŁÓWNA & WOJNY GILDII</h3>
-            <p style="font-size:0.7rem;">Zarządzaj terytorium gildii, walcz o strefy i zbieraj pasywne zyski.</p>
-            <div class="build-grid" id="housingGrid"></div>
-        </div>
-        <button class="btn btn-blue" id="btnCraft">⚒️ POBIERZ ZYSK PASYWNY</button>
-        <button class="btn btn-pink" style="margin-top: 10px;" id="btnGuildWar">⚔️ ROZPOCZYNIJ WOJNĘ O STREFĘ</button>
-    </div>
-
-    <!-- MISJE & WYPŁATY NAGROD -->
-    <div id="screen-quests" class="screen">
-        <div class="card">
-            <h3 style="color: var(--accent-gold);">GIEŁDA ZLECEŃ & WYPŁATY</h3>
-            <p style="font-size:0.7rem;">Wymieniaj złoto na bony podarunkowe do wybranych sklepów partnerskich!</p>
-            <div id="questList"></div>
-        </div>
-        <button class="btn btn-pink" id="btnVoucherShop">🎁 WYMIEŃ NA BON SKLEPOWY</button>
-        <button class="btn btn-secondary" style="margin-top: 8px;" id="btnAddQuest">+ WYSTAW ZLECENIE</button>
-    </div>
-
-    <nav>
-        <button id="nav-portal" class="active" data-target="screen-portal"><i>🌐</i>PORTAL</button>
-        <button id="nav-profile" data-target="screen-profile"><i>🧑</i>POSTAĆ</button>
-        <button id="nav-wardrobe" data-target="screen-wardrobe"><i>👕</i>SKLEPY</button>
-        <button id="nav-map" data-target="screen-map"><i>📍</i>MAPA</button>
-        <button id="nav-housing" data-target="screen-housing"><i>🏠</i>GILDIA</button>
-        <button id="nav-quests" data-target="screen-quests"><i>📜</i>BONY</button>
-    </nav>
-
-    <script type="module" src="./src/core/app.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script type="module" src="src/core/app.js"></script>
 </body>
 </html>
