@@ -1,6 +1,18 @@
 {
   "appId": "com.geoverse.app",
-  "appName": "GeoVerse",
+  "appName": "GeoVerse Phygital",
   "webDir": "www",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "plugins": {
+    "Geolocation": {
+      "permissions": ["location"]
+    },
+    "Camera": {
+      "permissions": ["camera"]
+    },
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#00ffcc"
+    }
+  }
 }
