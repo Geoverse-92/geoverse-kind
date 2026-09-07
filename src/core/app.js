@@ -1,274 +1,186 @@
-import { AppState } from './state.js';
-import { SyncEngine } from './sync.js';
-import { initMapModule } from '../modules/map.js';
-import { processReceipt } from '../modules/scanner.js';
-import { AREngine } from '../modules/ar.js';
-import { GuildWars } from '../modules/guild-wars.js';
-import { AchievementEngine } from '../modules/achievements.js';
-import { Router } from './router.js';
+import { NativeBridge } from './native.js';
+import { CloudSync } from './cloud.js';
 
-let currentModalCallback = null;
+class GeoVerseApp {
+    constructor() {
+        this.state = {
+            lvl: 1,
+            gold: 1200,
+            vouchers: 2,
+            name: "Agent",
+            avatar: "👨‍💻",
+            classTitle: "Cyber Tech",
+            outfit: "💻",
+            inventory: ["💻", "⚡", "🔮", "🛡️"],
+            housing: [
+                { id: 1, name: "Strefa Alpha", level: 1, income: 50 },
+                { id: 2, name: "Pusty Slot", level: 0, income: 0 },
+                { id: 3, name: "Pusty Slot", level: 0, income: 0 }
+            ],
+            quests: [
+                { id: 1, title: "Skan paragonu spożywczego", reward: "150 PLN", desc: "Zweryfikuj zakup w lokalnym partnerskim sklepie." },
+                { id: 2, title: "Meldunek w strefie centralnej", reward: "300 PLN + 1 Bon", desc: "Odwiedź wyznaczony punkt na mapie miasta." }
+            ],
+            feed: [
+                { time: "12:00", author: "System", text: "Zainicjalizowano rdzeń ekosystemu Phygital." }
+            ]
+        };
 
-function showToast(message, type = 'info', icon = 'ℹ️') {
-    const container = document.getElementById('toast-container');
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.innerHTML = `<span style="font-size: 1.2rem;">${icon}</span> <span>${message}</span>`;
-    container.appendChild(toast);
-    setTimeout(() => toast.classList.add('show'), 10);
-    setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 300); }, 3000);
-}
+        this.cloud = new CloudSync();
+        this.map = null;
+        this.init();
+    }
 
-function openModal(title, placeholder, callback) {
-    document.getElementById('modalTitle').innerText = title;
-    document.getElementById('modalInput').value = '';
-    document.getElementById('modalInput').placeholder = placeholder;
-    document.getElementById('modal-overlay').classList.add('show');
-    document.getElementById('modalInput').focus();
-    currentModalCallback = callback;
-}
+    init() {
+        this.loadState();
+        this.initNavigation();
+        this.initUI();
+        this.initMap();
+        this.renderAll();
+        NativeBridge.scheduleNotification("GeoVerse Phygital", "System gotowy do działania, Agencie.");
+    }
 
-function closeModal() {
-    document.getElementById('modal-overlay').classList.remove('show');
-    currentModalCallback = null;
-}
+    loadState() {
+        const saved = localStorage.getItem('geoverse_state');
+        if (saved) {
+            try { this.state = { ...this.state, ...JSON.parse(saved) }; } catch (e) { console.error(e); }
+        }
+    }
 
-function updateHUD(state) {
-    document.getElementById('statLvl').innerText = state.player.lvl;
-    document.getElementById('statGold').innerText = state.player.gold;
-    document.getElementById('statVouchers').innerText = state.player.vouchers;
-    document.getElementById('currentOutfitLabel').innerText = `Aktywny set: ${state.player.equipped || "Brak"}`;
-}
+    saveState() {
+        localStorage.setItem('geoverse_state', JSON.stringify(this.state));
+        this.cloud.syncUserData(this.state.name, this.state);
+    }
 
-function renderAll() {
-    const state = AppState.load();
-    updateHUD(state);
+    initNavigation() {
+        document.querySelectorAll('nav button').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const target = btn.getAttribute('data-target');
+                document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(target).classList.add('active');
+                if (target === 'screen-map' && this.map) {
+                    setTimeout(() => this.map.invalidateSize(), 200);
+                }
+            });
+        });
+    }
 
-    const feedContainer = document.getElementById('portalFeed');
-    feedContainer.innerHTML = '';
-    [...state.feed].reverse().forEach(post => {
-        feedContainer.innerHTML += `<div class="feed-item"><div class="feed-header"><span>${post.author}</span> <span>[${post.tag}]</span></div><p class="feed-body">${post.text}</p></div>`;
-    });
+    initUI() {
+        // Profil
+        document.getElementById('btnSaveProfile').addEventListener('click', () => {
+            this.state.name = document.getElementById('inputName').value || "Agent";
+            const avParts = document.getElementById('inputAvatarType').value.split('|');
+            this.state.avatar = avParts[0];
+            this.state.classTitle = avParts[1];
+            this.state.outfit = avParts[2];
+            this.saveState();
+            this.renderAll();
+            this.showToast("Profil zaktualizowany pomyślnie!");
+        });
 
-    document.getElementById('inputName').value = state.player.name;
-    document.getElementById('inputAvatarType').value = state.player.typeValue;
-    document.getElementById('profileNameDisplay').innerText = state.player.name;
-    const parts = state.player.typeValue.split('|');
-    document.getElementById('avatarDisplay').innerText = parts[0];
-    document.getElementById('profileClassDisplay').innerText = parts[1];
+        // Skaner paragonów / Akcje
+        document.getElementById('btnOpenScanner').addEventListener('click', async () => {
+            const pic = await NativeBridge.takePicture();
+            this.state.gold += 150;
+            this.addFeedItem("Skaner", "Przetworzono paragon handlowy. +150 PLN");
+            this.saveState();
+            this.renderAll();
+            this.showToast("Paragon zweryfikowany! +150 PLN");
+        });
 
-    const invContainer = document.getElementById('inventoryContainer');
-    invContainer.innerHTML = '';
-    state.inventory.forEach(item => {
-        const isEq = state.player.equipped === item.name;
-        invContainer.innerHTML += `<div class="item-card ${isEq ? 'equipped' : ''}" data-name="${item.name}"><div style="font-size:2rem; margin-bottom:5px;">${item.icon}</div><h4>${item.name}</h4><p style="font-size:0.55rem; color:${isEq ? 'var(--accent-green)' : '#888'}; margin:0;">${isEq ? '★ ZAŁOŻONE' : 'Załóż'}</p></div>`;
-    });
+        // GPS Check-in
+        document.getElementById('btnCheckIn').addEventListener('click', async () => {
+            try {
+                const pos = await NativeBridge.getCurrentPosition();
+                this.state.gold += 300;
+                this.addFeedItem("GPS", `Meldunek udany w lokacji: ${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}`);
+                this.saveState();
+                this.renderAll();
+                this.showToast("Meldunek GPS zweryfikowany! +300 PLN");
+            } catch (err) {
+                this.showToast("Błąd GPS: " + err);
+            }
+        });
 
-    const housingContainer = document.getElementById('housingGrid');
-    housingContainer.innerHTML = '';
-    state.housing.forEach((slot, index) => {
-        const isActive = !slot.name.includes("Wolne");
-        housingContainer.innerHTML += `<div class="build-slot ${isActive ? 'active' : ''}" data-index="${index}"><div>${slot.icon}</div><span style="font-size:0.45rem; font-family:'Press Start 2P'; margin-top:8px; color:${isActive ? 'var(--accent-gold)' : 'var(--text-muted)'}">${slot.name}</span></div>`;
-    });
+        document.getElementById('btnResetAccount').addEventListener('click', () => {
+            if (confirm("Czy na pewno chcesz zresetować postać?")) {
+                localStorage.removeItem('geoverse_state');
+                location.reload();
+            }
+        });
+    }
 
-    const questContainer = document.getElementById('questList');
-    questContainer.innerHTML = '';
-    state.quests.forEach(q => {
-        questContainer.innerHTML += `<div class="quest-item"><h4>${q.title}</h4><p>${q.desc}</p><p style="font-size: 0.65rem; color:var(--accent-green); margin-bottom: 10px;">Nagroda: 🪙 ${q.rewardGold} PLN</p><button class="btn btn-sm btn-complete-quest" data-id="${q.id}">ODBIERZ NAGRODĘ</button></div>`;
-    });
+    initMap() {
+        if (typeof L === 'undefined') return;
+        this.map = L.map('map-view').setView([52.2297, 21.0122], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{z}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(this.map);
+
+        // Marker przykładowej strefy
+        L.marker([52.2297, 21.0122]).addTo(this.map)
+          .bindPopup('<b>Strefa Główna</b><br>Przejmij terytorium!');
+    }
+
+    addFeedItem(author, text) {
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        this.state.feed.unshift({ time, author, text });
+        if (this.state.feed.length > 20) this.state.feed.pop();
+    }
+
+    showToast(msg) {
+        const container = document.getElementById('toast-container');
+        if (!container) return;
+        const toast = document.createElement('div');
+        toast.style.background = 'var(--card-bg)';
+        toast.style.border = '1px solid var(--accent-green)';
+        toast.style.padding = '10px 15px';
+        toast.style.borderRadius = '8px';
+        toast.style.marginBottom = '8px';
+        toast.style.fontSize = '0.75rem';
+        toast.style.fontFamily = 'Inter';
+        toast.innerText = msg;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    renderAll() {
+        document.getElementById('statLvl').innerText = this.state.lvl;
+        document.getElementById('statGold').innerText = this.state.gold;
+        document.getElementById('statVouchers').innerText = this.state.vouchers;
+        
+        document.getElementById('profileNameDisplay').innerText = this.state.name;
+        document.getElementById('profileClassDisplay').innerText = this.state.classTitle;
+        document.getElementById('avatarDisplay').innerText = this.state.avatar;
+        document.getElementById('currentOutfitLabel').innerText = `Aktywny skin: ${this.state.outfit}`;
+
+        // Feed render
+        const feedContainer = document.getElementById('portalFeed');
+        if (feedContainer) {
+            feedContainer.innerHTML = this.state.feed.map(f => `
+                <div class="feed-item">
+                    <div class="feed-header"><span>${f.author}</span><span>${f.time}</span></div>
+                    <div class="feed-body">${f.text}</div>
+                </div>
+            `).join('');
+        }
+
+        // Housing slots
+        const housingContainer = document.getElementById('housingGrid');
+        if (housingContainer) {
+            housingContainer.innerHTML = this.state.housing.map(h => `
+                <div class="build-slot ${h.level > 0 ? 'active' : ''}">
+                    <div style="font-size:1.2rem; margin-bottom:4px;">${h.level > 0 ? '🏢' : '➕'}</div>
+                    <div style="font-size:0.55rem;">${h.name}</div>
+                </div>
+            `).join('');
+        }
+    }
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    SyncEngine.init();
-    renderAll();
-
-    Router.init((route) => {
-        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        
-        const targetScreen = document.getElementById(`screen-${route}`);
-        const targetBtn = document.getElementById(`nav-${route}`);
-        
-        if (targetScreen) targetScreen.classList.add('active');
-        if (targetBtn) targetBtn.classList.add('active');
-
-        if (route === 'map') {
-            initMapModule('map-view');
-        }
-    });
-
-    document.querySelectorAll('nav button').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const target = btn.getAttribute('data-target').replace('screen-', '');
-            Router.navigate(target);
-        });
-    });
-
-    document.getElementById('modalCancelBtn').addEventListener('click', closeModal);
-    document.getElementById('modalConfirmBtn').addEventListener('click', () => {
-        const val = document.getElementById('modalInput').value.trim();
-        if (val && currentModalCallback) {
-            currentModalCallback(val);
-            closeModal();
-        } else {
-            showToast("Wprowadź wartość!", "error", "❌");
-        }
-    });
-
-    document.getElementById('btnAddPost').addEventListener('click', () => {
-        openModal("NOWY WPIS", "Podziel się osiągnięciem...", (text) => {
-            const state = AppState.load();
-            state.feed.push({ author: state.player.name.toUpperCase(), tag: "GLOBAL", text });
-            AppState.save(state);
-            SyncEngine.dispatchAction('NEW_POST', { text });
-            renderAll();
-            showToast("Wpis opublikowany w kronice!", "info", "✅");
-        });
-    });
-
-    document.getElementById('btnSaveProfile').addEventListener('click', () => {
-        const state = AppState.load();
-        const name = document.getElementById('inputName').value.trim();
-        if(!name) return showToast("Nick nie może być pusty!", "error", "❌");
-        const val = document.getElementById('inputAvatarType').value;
-        const parts = val.split('|');
-        state.player.name = name;
-        state.player.icon = parts[0];
-        state.player.className = parts[1];
-        state.player.typeValue = val;
-        AppState.save(state);
-        SyncEngine.dispatchAction('UPDATE_PROFILE', state.player);
-        renderAll();
-        showToast("Zapisano profil agenta!", "info", "🧬");
-    });
-
-    document.getElementById('btnAiAdvisor').addEventListener('click', () => {
-        const tips = [
-            "AI: Sklepy w Twojej okolicy oferują +50% złota za meldunek GPS!",
-            "AI: Przejmij strefę handlową w zakładce Gildia, by czerpać pasywne zyski.",
-            "AI: Skanuj paragony codziennie, aby zdobywać rzadkie skiny do szafy!"
-        ];
-        showToast(tips[Math.floor(Math.random() * tips.length)], "warning", "🤖");
-    });
-
-    document.getElementById('btnResetAccount').addEventListener('click', () => {
-        if(confirm("Czy na pewno chcesz zresetować postać?")) {
-            localStorage.clear();
-            location.reload();
-        }
-    });
-
-    document.getElementById('btnOpenScanner').addEventListener('click', () => {
-        openModal("SKANER PARAGONÓW", "Nazwa sklepu / Kod (np. Biedronka-09)", (code) => {
-            processReceipt(code);
-            renderAll();
-            showToast("Paragon zweryfikowany! +200 PLN", "warning", "✨");
-        });
-    });
-
-    document.getElementById('btnOpenAR').addEventListener('click', () => {
-        AREngine.initARScanner('ar-container', (reward) => {
-            const state = AppState.load();
-            state.inventory.push({ name: reward.name, icon: reward.icon });
-            state.player.gold += reward.bonus;
-            AppState.save(state);
-            renderAll();
-            showToast(`Odebrano nagrodę AR: +${reward.bonus} PLN!`, "warning", "💎");
-        });
-    });
-
-    document.getElementById('inventoryContainer').addEventListener('click', (e) => {
-        const card = e.target.closest('.item-card');
-        if(!card) return;
-        const itemName = card.getAttribute('data-name');
-        const state = AppState.load();
-        state.player.equipped = itemName;
-        AppState.save(state);
-        renderAll();
-        showToast(`Wyposażono set: ${itemName}`, "info", "👕");
-    });
-
-    document.getElementById('btnGuildWar').addEventListener('click', () => {
-        const result = GuildWars.resolveTerritoryConquest(1);
-        if (result.success) {
-            renderAll();
-            showToast(`Wygrano bitwę o strefę! Nagroda: +${result.reward} PLN`, "warning", "👑");
-        } else {
-            showToast(`Przegrano potyczkę. ${result.reason}`, "error", "⚔️");
-        }
-    });
-
-    document.getElementById('housingGrid').addEventListener('click', (e) => {
-        const slot = e.target.closest('.build-slot');
-        if(!slot) return;
-        const index = slot.getAttribute('data-index');
-        openModal("ZARZĄDZANIE TERYTORIUM", "Nazwa punktu handlowego", (itemName) => {
-            const state = AppState.load();
-            if(state.player.gold < 300) return showToast("Wymagane min. 300 PLN!", "error", "💰");
-            state.player.gold -= 300;
-            state.housing[index] = { id: Date.now(), name: itemName, icon: "🏢" };
-            AppState.save(state);
-            renderAll();
-            showToast(`Przejęto strefę handlową: ${itemName}`, "info", "🏗️");
-        });
-    });
-
-    document.getElementById('btnCraft').addEventListener('click', () => {
-        const state = AppState.load();
-        state.player.gold += 350;
-        AppState.save(state);
-        renderAll();
-        showToast("Pobrano zysk pasywny z gildii! +350 PLN", "info", "♻️");
-    });
-
-    document.getElementById('questList').addEventListener('click', (e) => {
-        if(!e.target.classList.contains('btn-complete-quest')) return;
-        const id = Number(e.target.getAttribute('data-id'));
-        const state = AppState.load();
-        const idx = state.quests.findIndex(q => q.id === id);
-        if(idx > -1) {
-            state.player.gold += state.quests[idx].rewardGold;
-            state.quests.splice(idx, 1);
-            AppState.save(state);
-            renderAll();
-            showToast("Misja ukończona pomyślnie!", "warning", "🏆");
-            
-            const ach = AchievementEngine.checkMilestones();
-            if(ach.unlocked) {
-                showToast(`Odblokowano osiągnięcie: ${ach.title}! (${ach.reward})`, "warning", "⭐");
-            }
-        }
-    });
-
-    document.getElementById('btnAddQuest').addEventListener('click', () => {
-        openModal("NOWE ZLECENIE", "Tytuł misji terenowej", (title) => {
-            const state = AppState.load();
-            state.quests.push({ id: Date.now(), title, desc: "Misja sponsorowana przez markę partnerską.", rewardGold: 250 });
-            AppState.save(state);
-            renderAll();
-            showToast("Dodano nowe zlecenie do giełdy", "info", "📜");
-        });
-    });
-
-    document.getElementById('btnVoucherShop').addEventListener('click', () => {
-        const state = AppState.load();
-        if(state.player.gold < 600) return showToast("Potrzebujesz min. 600 PLN złota!", "error", "❌");
-        state.player.gold -= 600;
-        state.player.vouchers += 1;
-        AppState.save(state);
-        renderAll();
-        showToast("Wymieniono walutę na bon podarunkowy!", "warning", "🎁");
-    });
-
-    document.getElementById('btnCheckIn').addEventListener('click', () => {
-        const state = AppState.load();
-        state.player.gold += 150;
-        AppState.save(state);
-        renderAll();
-        showToast("Zameldułeś się w strefie partnerskiej! +150 PLN", "info", "📍");
-    });
-
-    window.addEventListener('stateChanged', () => {
-        renderAll();
-    });
+    window.app = new GeoVerseApp();
 });
