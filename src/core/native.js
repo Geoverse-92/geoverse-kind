@@ -1,16 +1,11 @@
-import { Geolocation } from '@capacitor/geolocation';
-import { Camera, CameraResultType } from '@capacitor/camera';
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { Capacitor } from '@capacitor/core';
-
 export class NativeBridge {
     static isNative() {
-        return Capacitor.isNativePlatform();
+        return window.Capacitor && window.Capacitor.isNativePlatform();
     }
 
     static async getCurrentPosition() {
-        if (this.isNative()) {
-            const coordinates = await Geolocation.getCurrentPosition({ enableHighAccuracy: true });
+        if (this.isNative() && window.Capacitor.Plugins.Geolocation) {
+            const coordinates = await window.Capacitor.Plugins.Geolocation.getCurrentPosition({ enableHighAccuracy: true });
             return {
                 lat: coordinates.coords.latitude,
                 lng: coordinates.coords.longitude
@@ -28,34 +23,28 @@ export class NativeBridge {
     }
 
     static async takePicture() {
-        if (this.isNative()) {
-            const image = await Camera.getPhoto({
+        if (this.isNative() && window.Capacitor.Plugins.Camera) {
+            const image = await window.Capacitor.Plugins.Camera.getPhoto({
                 quality: 90,
                 allowEditing: false,
-                resultType: CameraResultType.Uri
+                resultType: 'uri'
             });
             return image.webPath;
         } else {
-            console.warn("Kamera natywna dostępna tylko w aplikacji mobilnej Capacitor.");
+            console.warn("Kamera natywna dostępna tylko w aplikacji mobilnej.");
             return null;
         }
     }
 
     static async scheduleNotification(title, body) {
-        if (this.isNative()) {
-            await LocalNotifications.schedule({
-                notifications: [
-                    {
-                        title: title,
-                        body: body,
-                        id: new Date().getTime(),
-                        schedule: { at: new Date(new Date().getTime() + 1000) },
-                        sound: null,
-                        attachments: [],
-                        actionTypeId: "",
-                        extra: null
-                    }
-                ]
+        if (this.isNative() && window.Capacitor.Plugins.LocalNotifications) {
+            await window.Capacitor.Plugins.LocalNotifications.schedule({
+                notifications: [{
+                    title: title,
+                    body: body,
+                    id: new Date().getTime(),
+                    schedule: { at: new Date(new Date().getTime() + 1000) }
+                }]
             });
         } else if ('Notification' in window && Notification.permission === 'granted') {
             new Notification(title, { body });
