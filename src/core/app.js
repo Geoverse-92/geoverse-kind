@@ -11,15 +11,10 @@ class GeoVerseApp {
             avatar: "👨‍💻",
             classTitle: "Cyber Tech",
             outfit: "💻",
-            inventory: ["💻", "⚡", "🔮", "🛡️"],
             housing: [
                 { id: 1, name: "Strefa Alpha", level: 1, income: 50 },
                 { id: 2, name: "Pusty Slot", level: 0, income: 0 },
                 { id: 3, name: "Pusty Slot", level: 0, income: 0 }
-            ],
-            quests: [
-                { id: 1, title: "Skan paragonu spożywczego", reward: "150 PLN", desc: "Zweryfikuj zakup w lokalnym partnerskim sklepie." },
-                { id: 2, title: "Meldunek w strefie centralnej", reward: "300 PLN + 1 Bon", desc: "Odwiedź wyznaczony punkt na mapie miasta." }
             ],
             feed: [
                 { time: "12:00", author: "System", text: "Zainicjalizowano rdzeń ekosystemu Phygital." }
@@ -54,7 +49,7 @@ class GeoVerseApp {
 
     initNavigation() {
         document.querySelectorAll('nav button').forEach(btn => {
-            btn.addEventListener('click', (e) => {
+            btn.addEventListener('click', () => {
                 const target = btn.getAttribute('data-target');
                 document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
                 document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -68,7 +63,6 @@ class GeoVerseApp {
     }
 
     initUI() {
-        // Profil
         document.getElementById('btnSaveProfile').addEventListener('click', () => {
             this.state.name = document.getElementById('inputName').value || "Agent";
             const avParts = document.getElementById('inputAvatarType').value.split('|');
@@ -80,9 +74,8 @@ class GeoVerseApp {
             this.showToast("Profil zaktualizowany pomyślnie!");
         });
 
-        // Skaner paragonów / Akcje
         document.getElementById('btnOpenScanner').addEventListener('click', async () => {
-            const pic = await NativeBridge.takePicture();
+            await NativeBridge.takePicture();
             this.state.gold += 150;
             this.addFeedItem("Skaner", "Przetworzono paragon handlowy. +150 PLN");
             this.saveState();
@@ -90,7 +83,6 @@ class GeoVerseApp {
             this.showToast("Paragon zweryfikowany! +150 PLN");
         });
 
-        // GPS Check-in
         document.getElementById('btnCheckIn').addEventListener('click', async () => {
             try {
                 const pos = await NativeBridge.getCurrentPosition();
@@ -117,12 +109,9 @@ class GeoVerseApp {
         this.map = L.map('map-view').setView([52.2297, 21.0122], 13);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{z}.png', {
             maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
+            attribution: '© OpenStreetMap'
         }).addTo(this.map);
-
-        // Marker przykładowej strefy
-        L.marker([52.2297, 21.0122]).addTo(this.map)
-          .bindPopup('<b>Strefa Główna</b><br>Przejmij terytorium!');
+        L.marker([52.2297, 21.0122]).addTo(this.map).bindPopup('<b>Strefa Główna</b>');
     }
 
     addFeedItem(author, text) {
@@ -151,13 +140,11 @@ class GeoVerseApp {
         document.getElementById('statLvl').innerText = this.state.lvl;
         document.getElementById('statGold').innerText = this.state.gold;
         document.getElementById('statVouchers').innerText = this.state.vouchers;
-        
         document.getElementById('profileNameDisplay').innerText = this.state.name;
         document.getElementById('profileClassDisplay').innerText = this.state.classTitle;
         document.getElementById('avatarDisplay').innerText = this.state.avatar;
         document.getElementById('currentOutfitLabel').innerText = `Aktywny skin: ${this.state.outfit}`;
 
-        // Feed render
         const feedContainer = document.getElementById('portalFeed');
         if (feedContainer) {
             feedContainer.innerHTML = this.state.feed.map(f => `
@@ -168,7 +155,6 @@ class GeoVerseApp {
             `).join('');
         }
 
-        // Housing slots
         const housingContainer = document.getElementById('housingGrid');
         if (housingContainer) {
             housingContainer.innerHTML = this.state.housing.map(h => `
