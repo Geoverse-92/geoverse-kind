@@ -79,3 +79,17 @@ nav button.active { color: var(--accent-green); border-top: 2px solid var(--acce
 .modal-box { background: var(--panel-bg); border: 1px solid var(--accent-green); border-radius: 12px; padding: 20px; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,255,204,0.2); }
 .modal-title { font-family: 'Press Start 2P', cursive; font-size: 0.65rem; color: var(--accent-green); margin-bottom: 15px; }
 .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
+.matrix-particle {
+    position: fixed;
+    font-family: 'Press Start 2P', cursive;
+    font-size: 0.5rem;
+    color: var(--accent-green);
+    pointer-events: none;
+    z-index: 99999;
+    animation: particleFly 0.8s cubic-bezier(0, .9, .5, 1) forwards;
+}
+
+@keyframes particleFly {
+    0% { opacity: 1; transform: translate(0, 0) scale(1); }
+    100% { opacity: 0; transform: translate(var(--tx), var(--ty)) scale(0.3); }
+}
