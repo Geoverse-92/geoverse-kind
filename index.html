@@ -3,84 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GeoVerse Phygital</title>
-    <!-- Leaflet CSS -->
+    <title>GeoVerse Tibia Phygital</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="app">
-        <!-- Top Bar -->
+        <!-- Top Tibia Bar -->
         <header class="top-bar">
-            <div class="stat-badge">LVL <span id="statLvl">1</span></div>
-            <div class="stat-badge">💰 <span id="statGold">1200</span> PLN</div>
-            <div class="stat-badge">🎟️ <span id="statVouchers">2</span></div>
+            <div class="stat-badge">LVL: <span id="statLvl">8</span></div>
+            <div class="stat-badge">GOLD: <span id="statGold">3450</span> GP</div>
+            <div class="stat-badge">TIBIA COINS: <span id="statVouchers">12</span></div>
         </header>
 
-        <!-- Main Content Screens -->
+        <!-- Main Screens -->
         <main class="content">
             <!-- MAP SCREEN -->
             <div id="screen-map" class="screen active">
                 <div id="map-view" style="width: 100%; height: 100%;"></div>
                 <div class="map-actions-overlay">
-                    <button id="btnCheckIn" class="btn-action">📍 Zamelduj się (GPS)</button>
+                    <button id="btnCheckIn" class="btn-action">⚡ Oczyść Respawn (GPS)</button>
                 </div>
             </div>
 
-            <!-- PROFILE SCREEN -->
+            <!-- PROFILE / OUTFIT CREATOR SCREEN -->
             <div id="screen-profile" class="screen">
-                <h2>Profil Agenta</h2>
-                <div class="card">
-                    <div id="avatarDisplay" style="font-size: 3rem;">👨‍💻</div>
-                    <div id="profileNameDisplay" style="font-weight: bold; font-size: 1.2rem;">Agent</div>
-                    <div id="profileClassDisplay" style="color: var(--accent-green); font-size: 0.8rem;">Cyber Tech</div>
-                    <div id="currentOutfitLabel" style="font-size: 0.7rem; margin-top: 5px;">Aktywny skin: 💻</div>
+                <h2 style="font-size: 0.9rem; margin-bottom: 10px; color: #ffcc00;">[POSTAĆ & GARDEROBA OUTFITÓW]</h2>
+                <div class="card" style="text-align: center;">
+                    <div id="avatarDisplay" class="pixel-avatar-box">🧑‍🦰🛡️</div>
+                    <div id="profileNameDisplay" style="font-weight: bold; font-size: 0.85rem;">Knight Rook</div>
+                    <div id="profileClassDisplay" style="color: #00ff66; font-size: 0.7rem;">[Knight]</div>
+                    <div id="currentEquipmentLabel" style="font-size: 0.6rem; margin-top: 5px; color: #94a3b8;">Eq: ⚔️ | Addon: ✨</div>
                 </div>
                 <div class="card">
-                    <h3>Edycja Tożsamości</h3>
-                    <input type="text" id="inputName" placeholder="Nazwa agenta" />
-                    <select id="inputAvatarType">
-                        <option value="👨‍💻|Cyber Tech|💻">Cyber Tech</option>
-                        <option value="🥷|Shadow Operative|⚡">Shadow Operative</option>
-                        <option value="🧙‍♂️|Data Alchemist|🔮">Data Alchemist</option>
-                    </select>
-                    <button id="btnSaveProfile" class="btn-action" style="margin-top: 10px;">Zapisz profil</button>
-                    <button id="btnResetAccount" class="btn-danger" style="margin-top: 10px; background: #ff4444; color: white; border: none; padding: 8px; border-radius: 6px;">Resetuj Postać</button>
+                    <h3 style="font-size: 0.75rem; margin-bottom: 6px;">Kreator Postaci (Outfit Workshop)</h3>
+                    <div class="customizer-grid">
+                        <div>
+                            <label style="font-size: 0.55rem;">Imię Postaci:</label>
+                            <input type="text" id="inputName" value="Knight Rook" />
+                        </div>
+                        <div>
+                            <label style="font-size: 0.55rem;">Profesja:</label>
+                            <select id="inputVoc">
+                                <option value="Knight">Knight</option>
+                                <option value="Sorcerer">Sorcerer</option>
+                                <option value="Druid">Druid</option>
+                                <option value="Paladin">Paladin</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.55rem;">Twarz / Włosy:</label>
+                            <select id="selectHead">
+                                <option value="🧑‍🦰">Rudy Blond</option>
+                                <option value="🧑‍🦳">Weteran Siwy</option>
+                                <option value="👱‍♂️">Młody Wojownik</option>
+                                <option value="🧝">Elficki Łowca</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.55rem;">Zbroja / Outfit:</label>
+                            <select id="selectOutfit">
+                                <option value="🛡️">Plate Armor</option>
+                                <option value="🧥">Wizard Robe</option>
+                                <option value="🥋">Demon Armor</option>
+                                <option value="👑">Golden Outfit</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.55rem;">Broń Główna:</label>
+                            <select id="selectWeapon">
+                                <option value="⚔️">Broadsword</option>
+                                <option value="🗡️">Combat Knife</option>
+                                <option value="🔮">Wand of Vortex</option>
+                                <option value="🏹">Crossbow</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.55rem;">Dodatek / Addon:</label>
+                            <select id="selectAddon">
+                                <option value="✨">Addon 1 (Pióro)</option>
+                                <option value="🦅">Addon 2 (Skrzydła)</option>
+                                <option value="🔥">Aura Ognia</option>
+                                <option value="⭐">Brak</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button id="btnSaveProfile" class="btn-action" style="margin-top: 12px;">Zapisz Zmiany i Outfit</button>
+                    <button id="btnResetAccount" class="btn-action" style="margin-top: 8px; background: #6a040f; border-color: #d90429;">Temple Teleport (Reset)</button>
                 </div>
             </div>
 
-            <!-- ZONE / HOUSING SCREEN -->
+            <!-- HOUSING / GUILDHALL SCREEN -->
             <div id="screen-housing" class="screen">
-                <h2>Strefy i Biznesy</h2>
-                <div id="housingGrid" class="housing-grid"></div>
-                <div class="card" style="margin-top: 15px;">
-                    <h3>Skaner Paragonów</h3>
-                    <p style="font-size: 0.75rem;">Zeskanuj dowód zakupu w strefie partnerskiej, aby zdobyć walutę.</p>
-                    <button id="btnOpenScanner" class="btn-action">📷 Skanuj Paragon / Dowód</button>
+                <h2>Tereny i Gildie (Houses)</h2>
+                <div id="housingGrid" class="housing-grid" style="margin-top: 10px;"></div>
+                <div class="card" style="margin-top: 12px;">
+                    <h3>Skaner Paragonów Loot</h3>
+                    <p style="font-size: 0.65rem; margin-bottom: 8px;">Prześlij dowód zakupu z partnerskich miejsc, aby zasilić skarbcy gildii.</p>
+                    <button id="btnOpenScanner" class="btn-action">📷 Zeskanuj Paragon (Loot)</button>
                 </div>
             </div>
 
             <!-- FEED SCREEN -->
             <div id="screen-feed" class="screen">
-                <h2>Aktywność Świata</h2>
-                <div id="portalFeed"></div>
+                <h2>Server Log / Battle Feed</h2>
+                <div id="portalFeed" style="margin-top: 8px;"></div>
             </div>
         </main>
 
-        <!-- Bottom Navigation -->
+        <!-- Bottom Retro Navigation -->
         <nav class="nav-bar">
-            <button data-target="screen-map" class="active">🗺️ Mapa</button>
-            <button data-target="screen-housing">🏢 Strefy</button>
-            <button data-target="screen-feed">📡 Feed</button>
-            <button data-target="screen-profile">👤 Profil</button>
+            <button data-target="screen-map" class="active">🗺️ MAP</button>
+            <button data-target="screen-housing">🏰 HOUSES</button>
+            <button data-target="screen-feed">📜 LOGS</button>
+            <button data-target="screen-profile">👤 CHAR</button>
         </nav>
 
-        <div id="toast-container" style="position: fixed; bottom: 70px; left: 20px; right: 20px; z-index: 9999;"></div>
+        <div id="toast-container" style="position: fixed; bottom: 65px; left: 15px; right: 15px; z-index: 9999;"></div>
     </div>
 
-    <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- App Entry -->
     <script type="module" src="src/core/app.js"></script>
 </body>
 </html>
