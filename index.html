@@ -80,7 +80,7 @@
         relationshipStatus: "Wolny"
       });
 
-      // Punkty Sklepów / MarekW
+      // Punkty Sklepów / Marek
       const brandLocations = [
         { id: 1, name: "Żabka Quest", pos: [52.2310, 21.0150], icon: "🏪", offer: "-20% na Hot-Dog za 50 Golda", reward: "+100 EXP" },
         { id: 2, name: "Cyber Cafe", pos: [52.2280, 21.0100], icon: "☕", offer: "Darmowy napój przy wejściu", reward: "+200 EXP" },
@@ -124,15 +124,15 @@
         }
       }, []);
 
-      // Inicjalizacja Leaflet Map
+      // Inicjalizacja Leaflet Map (użycie darmowego OSM zamiast Carto wymagającego klucza)
       useEffect(() => {
         if (activeTab === 'map') {
           const timer = setTimeout(() => {
             const mapContainer = document.getElementById('leaflet-map');
             if (mapContainer && !mapRef.current) {
               const map = L.map('leaflet-map', { zoomControl: false }).setView(position, 15);
-              L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: 'OpenStreetMap'
+              L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap'
               }).addTo(map);
 
               // Gracz
