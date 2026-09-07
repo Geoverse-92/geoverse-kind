@@ -1,23 +1,25 @@
 import { NativeBridge } from './native.js';
 import { CloudSync } from './cloud.js';
 
-class GeoVerseApp {
+class GeoVerseTibiaApp {
     constructor() {
         this.state = {
-            lvl: 1,
-            gold: 1200,
-            vouchers: 2,
-            name: "Agent",
-            avatar: "👨‍💻",
-            classTitle: "Cyber Tech",
-            outfit: "💻",
+            lvl: 8,
+            gold: 3450,
+            vouchers: 12,
+            name: "Knight Rook",
+            head: "🧑‍🦰",
+            outfit: "🛡️",
+            weapon: "⚔️",
+            addon: "✨",
+            voc: "Knight",
             housing: [
-                { id: 1, name: "Strefa Alpha", level: 1, income: 50 },
-                { id: 2, name: "Pusty Slot", level: 0, income: 0 },
-                { id: 3, name: "Pusty Slot", level: 0, income: 0 }
+                { id: 1, name: "Depot Thais", level: 2, income: 150 },
+                { id: 2, name: "Domek Carlin", level: 1, income: 75 },
+                { id: 3, name: "Puste Guildhall", level: 0, income: 0 }
             ],
             feed: [
-                { time: "12:00", author: "System", text: "Zainicjalizowano rdzeń ekosystemu Phygital." }
+                { time: "13:00", author: "Oracle", text: "Witaj w świecie Phygital Tibia. Wybierz swoją ścieżkę!" }
             ]
         };
 
@@ -32,18 +34,17 @@ class GeoVerseApp {
         this.initUI();
         this.initMap();
         this.renderAll();
-        NativeBridge.scheduleNotification("GeoVerse Phygital", "System gotowy do działania, Agencie.");
     }
 
     loadState() {
-        const saved = localStorage.getItem('geoverse_state');
+        const saved = localStorage.getItem('geoverse_tibia_state');
         if (saved) {
             try { this.state = { ...this.state, ...JSON.parse(saved) }; } catch (e) { console.error(e); }
         }
     }
 
     saveState() {
-        localStorage.setItem('geoverse_state', JSON.stringify(this.state));
+        localStorage.setItem('geoverse_tibia_state', JSON.stringify(this.state));
         this.cloud.syncUserData(this.state.name, this.state);
     }
 
@@ -64,41 +65,43 @@ class GeoVerseApp {
 
     initUI() {
         document.getElementById('btnSaveProfile').addEventListener('click', () => {
-            this.state.name = document.getElementById('inputName').value || "Agent";
-            const avParts = document.getElementById('inputAvatarType').value.split('|');
-            this.state.avatar = avParts[0];
-            this.state.classTitle = avParts[1];
-            this.state.outfit = avParts[2];
+            this.state.name = document.getElementById('inputName').value || "Knight Rook";
+            this.state.head = document.getElementById('selectHead').value;
+            this.state.outfit = document.getElementById('selectOutfit').value;
+            this.state.weapon = document.getElementById('selectWeapon').value;
+            this.state.addon = document.getElementById('selectAddon').value;
+            this.state.voc = document.getElementById('selectVoc').value;
+            
             this.saveState();
             this.renderAll();
-            this.showToast("Profil zaktualizowany pomyślnie!");
+            this.showToast("[CHAR] Postać została zaktualizowana pomyślnie!");
         });
 
         document.getElementById('btnOpenScanner').addEventListener('click', async () => {
             await NativeBridge.takePicture();
-            this.state.gold += 150;
-            this.addFeedItem("Skaner", "Przetworzono paragon handlowy. +150 PLN");
+            this.state.gold += 300;
+            this.addFeedItem("Loot", "Zlootowano rzadki przedmiot z paragonu! +300 GP");
             this.saveState();
             this.renderAll();
-            this.showToast("Paragon zweryfikowany! +150 PLN");
+            this.showToast("[LOOT] Paragon zweryfikowany! +300 GP");
         });
 
         document.getElementById('btnCheckIn').addEventListener('click', async () => {
             try {
                 const pos = await NativeBridge.getCurrentPosition();
-                this.state.gold += 300;
-                this.addFeedItem("GPS", `Meldunek udany w lokacji: ${pos.lat.toFixed(4)}, ${pos.lng.toFixed(4)}`);
+                this.state.gold += 500;
+                this.addFeedItem("Spawn", `Oczyszczono respawn GPS: ${pos.lat.toFixed(3)}, ${pos.lng.toFixed(3)}`);
                 this.saveState();
                 this.renderAll();
-                this.showToast("Meldunek GPS zweryfikowany! +300 PLN");
+                this.showToast("[QUEST] Teren zabezpieczony! +500 GP");
             } catch (err) {
-                this.showToast("Błąd GPS: " + err);
+                this.showToast("[ERROR] Brak sygnału z orka: " + err);
             }
         });
 
         document.getElementById('btnResetAccount').addEventListener('click', () => {
-            if (confirm("Czy na pewno chcesz zresetować postać?")) {
-                localStorage.removeItem('geoverse_state');
+            if (confirm("Czy na pewno chcesz wykonać Temple Teleport (Reset)?")) {
+                localStorage.removeItem('geoverse_tibia_state');
                 location.reload();
             }
         });
@@ -106,12 +109,17 @@ class GeoVerseApp {
 
     initMap() {
         if (typeof L === 'undefined') return;
-        this.map = L.map('map-view').setView([52.2297, 21.0122], 13);
+        this.map = L.map('map-view', { zoomControl: false }).setView([50.0266, 19.2334], 14);
         L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{z}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap'
+            maxZoom: 19
         }).addTo(this.map);
-        L.marker([52.2297, 21.0122]).addTo(this.map).bindPopup('<b>Strefa Główna</b>');
+
+        L.circleMarker([50.0266, 19.2334], {
+            radius: 10,
+            color: '#ffcc00',
+            fillColor: '#ff0000',
+            fillOpacity: 0.8
+        }).addTo(this.map).bindPopup('<b>[THAIS] Główny Bank & Depot</b>');
     }
 
     addFeedItem(author, text) {
@@ -124,26 +132,28 @@ class GeoVerseApp {
         const container = document.getElementById('toast-container');
         if (!container) return;
         const toast = document.createElement('div');
-        toast.style.background = 'var(--card-bg)';
-        toast.style.border = '1px solid var(--accent-green)';
-        toast.style.padding = '10px 15px';
-        toast.style.borderRadius = '8px';
-        toast.style.marginBottom = '8px';
-        toast.style.fontSize = '0.75rem';
-        toast.style.fontFamily = 'Inter';
+        toast.style.background = '#181820';
+        toast.style.border = '2px solid var(--accent-gold)';
+        toast.style.color = '#ffcc00';
+        toast.style.padding = '8px 12px';
+        toast.style.marginBottom = '6px';
+        toast.style.fontSize = '0.7rem';
+        toast.style.fontFamily = 'Courier New', monospace;
+        toast.style.boxShadow = '3px 3px 0px #000';
         toast.innerText = msg;
         container.appendChild(toast);
-        setTimeout(() => toast.remove(), 3000);
+        setTimeout(() => toast.remove(), 3500);
     }
 
     renderAll() {
         document.getElementById('statLvl').innerText = this.state.lvl;
         document.getElementById('statGold').innerText = this.state.gold;
         document.getElementById('statVouchers').innerText = this.state.vouchers;
+        
         document.getElementById('profileNameDisplay').innerText = this.state.name;
-        document.getElementById('profileClassDisplay').innerText = this.state.classTitle;
-        document.getElementById('avatarDisplay').innerText = this.state.avatar;
-        document.getElementById('currentOutfitLabel').innerText = `Aktywny skin: ${this.state.outfit}`;
+        document.getElementById('profileClassDisplay').innerText = `[${this.state.voc}]`;
+        document.getElementById('avatarDisplay').innerHTML = `${this.state.head} <span style="font-size:2rem; margin-left:-15px;">${this.state.outfit}</span>`;
+        document.getElementById('currentEquipmentLabel').innerText = `Eq: ${this.state.weapon} | Addon: ${this.state.addon}`;
 
         const feedContainer = document.getElementById('portalFeed');
         if (feedContainer) {
@@ -159,8 +169,9 @@ class GeoVerseApp {
         if (housingContainer) {
             housingContainer.innerHTML = this.state.housing.map(h => `
                 <div class="build-slot ${h.level > 0 ? 'active' : ''}">
-                    <div style="font-size:1.2rem; margin-bottom:4px;">${h.level > 0 ? '🏢' : '➕'}</div>
-                    <div style="font-size:0.55rem;">${h.name}</div>
+                    <div style="font-size:1.2rem; margin-bottom:2px;">${h.level > 0 ? '🏰' : '⛺'}</div>
+                    <div style="font-size:0.55rem; font-weight:bold;">${h.name}</div>
+                    <div style="font-size:0.45rem; color:#00ff66;">+${h.income} GP/h</div>
                 </div>
             `).join('');
         }
@@ -168,5 +179,5 @@ class GeoVerseApp {
 }
 
 window.addEventListener('DOMContentLoaded', () => {
-    window.app = new GeoVerseApp();
+    window.app = new GeoVerseTibiaApp();
 });
