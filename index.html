@@ -128,3 +128,43 @@
     <script type="module" src="src/core/app.js"></script>
 </body>
 </html>
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    background-color: #05050a;
+    color: #00ffcc;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+  }
+}
+
+/* Stylizacja pikselowa i scrollbary retro */
+.pixelated {
+  image-rendering: pixelated;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #121224;
+}
+::-webkit-scrollbar-thumb {
+  background: #333366;
+}
+
+/* Dymki na mapie Leaflet w klimacie cyberpunk */
+.leaflet-popup-content-wrapper, .leaflet-popup-tip {
+  background: #121224 !important;
+  color: #00ffcc !important;
+  border: 2px solid #333366;
+  font-family: 'Press Start 2P', monospace;
+  font-size: 8px;
+  box-shadow: 0 0 10px rgba(0, 255, 204, 0.2);
+}
