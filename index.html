@@ -2,8 +2,16 @@
 <html lang="pl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GeoVerse - Phygital MMO & Portal</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#05060a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>GeoVerse - Phygital Portal</title>
+    
+    <!-- Wymagane style i skrypty mapy Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@300;400;700&display=swap');
 
@@ -17,61 +25,91 @@
             --accent-blue: #0099ff;
             --text-main: #ffffff;
             --text-muted: #8b9bb4;
+            --danger: #ff3366;
         }
 
-        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Roboto', sans-serif; overflow-x: hidden; }
+        * { box-sizing: border-box; user-select: none; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { margin: 0; background: var(--bg-dark); color: var(--text-main); font-family: 'Roboto', sans-serif; overflow-x: hidden; overscroll-behavior-y: none; }
 
-        header { background: #080a10; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); box-shadow: 0 0 25px rgba(0,255,204,0.2); position: sticky; top: 0; z-index: 1000; }
+        /* HEADER */
+        header { background: rgba(8, 10, 16, 0.95); padding: max(12px, env(safe-area-inset-top)) 15px 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent-green); box-shadow: 0 0 20px rgba(0,255,204,0.15); position: sticky; top: 0; z-index: 1000; backdrop-filter: blur(10px); }
         .brand { display: flex; align-items: center; gap: 8px; }
-        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.6rem; margin: 0; text-shadow: 0 0 8px rgba(0,255,204,0.5); }
-        .player-hud { font-family: 'Press Start 2P', cursive; font-size: 0.38rem; color: var(--accent-gold); display: flex; gap: 6px; background: #121622; padding: 5px 8px; border-radius: 6px; border: 1px solid var(--panel-border); align-items: center; }
+        h1 { font-family: 'Press Start 2P', cursive; color: var(--accent-green); font-size: 0.65rem; margin: 0; text-shadow: 0 0 8px rgba(0,255,204,0.4); letter-spacing: 1px; }
+        .player-hud { font-family: 'Press Start 2P', cursive; font-size: 0.35rem; color: var(--accent-gold); display: flex; gap: 8px; background: #121622; padding: 6px 10px; border-radius: 6px; border: 1px solid var(--panel-border); align-items: center; }
 
-        .screen { display: none; padding: 12px; padding-bottom: 95px; }
+        /* SCREENS & CONTAINERS */
+        .screen { display: none; padding: 15px; padding-bottom: calc(100px + env(safe-area-inset-bottom)); animation: fadeIn 0.3s ease-out; }
         .screen.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.6); }
+        .card { background: var(--panel-bg); border: 1px solid var(--panel-border); border-radius: 12px; padding: 16px; margin-bottom: 15px; box-shadow: 0 8px 20px rgba(0,0,0,0.4); position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--panel-border); transition: 0.3s; }
         
-        .avatar-container { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-        .avatar-box { width: 70px; height: 70px; background: #161b29; border: 3px solid var(--accent-pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; box-shadow: 0 0 15px rgba(255,0,255,0.4); flex-shrink: 0; }
-        .avatar-info h3 { margin: 0 0 3px 0; font-size: 0.8rem; font-family: 'Press Start 2P'; color: #fff; }
-        .avatar-info p { margin: 0; font-size: 0.65rem; color: var(--text-muted); }
+        /* TYPOGRAPHY & FORMS */
+        h3 { font-family: 'Press Start 2P', cursive; font-size: 0.75rem; margin: 0 0 10px 0; line-height: 1.4; }
+        p { font-size: 0.8rem; color: var(--text-muted); margin: 0 0 8px 0; line-height: 1.5; }
+        label { display: block; font-size: 0.6rem; color: var(--text-muted); margin-bottom: 6px; font-family: 'Press Start 2P', cursive; }
+        input, select { width: 100%; background: #05060a; border: 1px solid #28304a; color: #fff; padding: 12px; border-radius: 8px; font-size: 0.9rem; margin-bottom: 15px; transition: 0.3s; }
+        input:focus, select:focus { border-color: var(--accent-green); box-shadow: 0 0 10px rgba(0,255,204,0.2); }
 
-        label { display: block; font-size: 0.6rem; color: var(--text-muted); margin-bottom: 5px; font-family: 'Press Start 2P'; }
-        input, select { width: 100%; background: #05060a; border: 1px solid #28304a; color: #fff; padding: 10px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 10px; }
+        /* BUTTONS */
+        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 14px; font-family: 'Press Start 2P', cursive; font-size: 0.6rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; transition: 0.2s; position: relative; overflow: hidden; }
+        .btn:active { transform: scale(0.96); }
+        .btn-secondary { background: #1f2638; color: #fff; margin-top: 8px; }
+        .btn-blue { background: var(--accent-blue); color: #fff; }
+        .btn-danger { background: var(--danger); color: #fff; }
+        .btn-sm { padding: 10px; font-size: 0.5rem; }
 
-        .btn { background: var(--accent-green); color: #000; width: 100%; padding: 12px; font-family: 'Press Start 2P', cursive; font-size: 0.55rem; border: none; cursor: pointer; border-radius: 8px; font-weight: bold; text-align: center; box-shadow: 0 0 12px rgba(0,255,204,0.3); transition: 0.2s; }
-        .btn:active { transform: scale(0.97); }
-        .btn-secondary { background: #1f2638; color: #fff; margin-top: 6px; border: 1px solid #374261; }
-        .btn-blue { background: var(--accent-blue); color: #fff; box-shadow: 0 0 12px rgba(0,153,255,0.3); }
+        /* AVATAR */
+        .avatar-container { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
+        .avatar-box { width: 75px; height: 75px; background: #161b29; border: 3px solid var(--accent-pink); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2.2rem; box-shadow: 0 0 15px rgba(255,0,255,0.3); }
+        .avatar-info h3 { margin: 0 0 5px 0; font-size: 0.85rem; color: #fff; }
 
-        .feed-item { background: #121624; border: 1px solid var(--panel-border); border-radius: 8px; padding: 10px; margin-bottom: 8px; }
-        .feed-header { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--accent-pink); font-family: 'Press Start 2P'; margin-bottom: 4px; }
-        .feed-body { font-size: 0.75rem; color: var(--text-muted); margin: 0; line-height: 1.35; }
+        /* FEED / SOCIAL */
+        .feed-item { background: #121624; border: 1px solid var(--panel-border); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+        .feed-header { display: flex; justify-content: space-between; font-size: 0.6rem; color: var(--accent-pink); font-family: 'Press Start 2P', cursive; margin-bottom: 8px; }
+        .feed-body { font-size: 0.8rem; color: var(--text-muted); margin: 0; }
 
-        .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
-        .item-card { background: #121624; border: 1px solid var(--panel-border); padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: 0.2s; }
-        .item-card.equipped { border-color: var(--accent-green); background: rgba(0,255,204,0.06); box-shadow: 0 0 10px rgba(0,255,204,0.15); }
-        .item-card h4 { margin: 6px 0 2px 0; font-size: 0.65rem; font-family: 'Press Start 2P'; color: var(--accent-green); }
+        /* INVENTORY GRID */
+        .inventory-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+        .item-card { background: #121624; border: 1px solid var(--panel-border); padding: 12px; border-radius: 10px; text-align: center; cursor: pointer; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
+        .item-card.equipped { border-color: var(--accent-green); background: rgba(0,255,204,0.08); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,255,204,0.1); }
+        .item-card h4 { margin: 8px 0 4px 0; font-size: 0.6rem; font-family: 'Press Start 2P', cursive; color: var(--text-main); line-height: 1.3; }
 
-        #map-view { height: 45vh; width: 100%; background: radial-gradient(circle, #121626 0%, #05060a 100%); border-radius: 12px; border: 2px solid var(--accent-green); position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; text-align: center; margin-bottom: 10px; box-shadow: inset 0 0 20px rgba(0,255,204,0.1); }
-        .radar-wave { position: absolute; width: 140px; height: 140px; border: 1px dashed rgba(0,255,204,0.35); border-radius: 50%; animation: pulse 3s infinite linear; }
-        @keyframes pulse { 0% { transform: scale(0.4); opacity: 1; } 100% { transform: scale(2.4); opacity: 0; } }
+        /* MAP */
+        #map-view { height: 50vh; width: 100%; border-radius: 12px; border: 2px solid var(--accent-green); margin-bottom: 12px; box-shadow: 0 0 20px rgba(0,255,204,0.1); z-index: 1; background: #0a0c12; }
+        .leaflet-popup-content-wrapper, .leaflet-popup-tip { background: #0e111a; color: #fff; border: 1px solid var(--accent-green); font-family: 'Roboto', sans-serif; }
+        .leaflet-popup-content { margin: 12px; }
+        .leaflet-popup-content h3 { font-size: 0.6rem; margin-bottom: 8px; }
         
-        .map-pin { position: absolute; background: #0e111a; border: 2px solid var(--accent-pink); padding: 5px 8px; border-radius: 8px; font-size: 0.6rem; font-family: 'Press Start 2P'; box-shadow: 0 0 10px rgba(255,0,255,0.4); cursor: pointer; white-space: nowrap; }
-        .map-pin.player { border-color: var(--accent-green); z-index: 10; font-size: 0.85rem; padding: 6px; background: #080a10; }
-
-        .quest-item { background: #121624; border-left: 4px solid var(--accent-gold); padding: 10px; border-radius: 6px; margin-bottom: 8px; border: 1px solid var(--panel-border); }
-        .quest-item h4 { margin: 0 0 3px 0; font-size: 0.7rem; color: var(--accent-gold); font-family: 'Press Start 2P'; }
-        .quest-item p { margin: 0 0 6px 0; font-size: 0.68rem; color: var(--text-muted); }
-
-        .build-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-        .build-slot { background: #121624; border: 1px dashed var(--panel-border); border-radius: 8px; height: 75px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.4rem; cursor: pointer; }
+        /* HOUSING */
+        .build-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        .build-slot { background: #121624; border: 2px dashed var(--panel-border); border-radius: 10px; height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 1.8rem; cursor: pointer; transition: 0.2s; }
         .build-slot.active { border-style: solid; border-color: var(--accent-gold); background: rgba(255,215,0,0.05); }
 
-        nav { display: flex; background: #080a10; border-top: 2px solid var(--panel-border); position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; }
-        nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 12px 2px; font-family: 'Press Start 2P'; font-size: 0.35rem; cursor: pointer; text-align: center; transition: 0.2s; }
-        nav button.active { color: var(--accent-green); background: #121624; border-top: 2px solid var(--accent-green); text-shadow: 0 0 5px rgba(0,255,204,0.4); }
+        /* QUESTS */
+        .quest-item { background: #121624; border-left: 4px solid var(--accent-gold); padding: 12px; border-radius: 8px; margin-bottom: 12px; border-top: 1px solid var(--panel-border); border-right: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
+
+        /* NAVIGATION */
+        nav { display: flex; background: rgba(8, 10, 16, 0.95); border-top: 2px solid var(--panel-border); position: fixed; bottom: 0; left: 0; width: 100%; z-index: 9999; backdrop-filter: blur(10px); padding-bottom: env(safe-area-inset-bottom); }
+        nav button { flex: 1; background: none; border: none; color: var(--text-muted); padding: 16px 2px; font-family: 'Press Start 2P', cursive; font-size: 0.4rem; cursor: pointer; text-align: center; transition: 0.3s; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        nav button i { font-style: normal; font-size: 1rem; }
+        nav button.active { color: var(--accent-green); border-top: 2px solid var(--accent-green); background: linear-gradient(0deg, rgba(0,255,204,0) 0%, rgba(0,255,204,0.05) 100%); }
+        nav button.active i { transform: scale(1.1); text-shadow: 0 0 10px rgba(0,255,204,0.5); }
+
+        /* CUSTOM UI COMPONENTS (TOASTS & MODALS) */
+        #toast-container { position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 10000; display: flex; flex-direction: column; gap: 10px; width: 90%; max-width: 400px; pointer-events: none; }
+        .toast { background: rgba(14, 17, 26, 0.95); border-left: 4px solid var(--accent-green); padding: 12px 15px; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px; font-size: 0.8rem; opacity: 0; transform: translateY(-20px); transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55); border-right: 1px solid var(--panel-border); border-top: 1px solid var(--panel-border); border-bottom: 1px solid var(--panel-border); }
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--accent-gold); }
+
+        #modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10001; display: none; align-items: center; justify-content: center; backdrop-filter: blur(5px); opacity: 0; transition: 0.3s; }
+        #modal-overlay.show { display: flex; opacity: 1; }
+        .modal-box { background: var(--panel-bg); border: 1px solid var(--accent-green); border-radius: 12px; padding: 20px; width: 90%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,255,204,0.2); transform: scale(0.9); transition: 0.3s; }
+        #modal-overlay.show .modal-box { transform: scale(1); }
+        .modal-title { font-family: 'Press Start 2P', cursive; font-size: 0.65rem; color: var(--accent-green); margin-bottom: 15px; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -82,279 +120,568 @@
         </div>
         <div class="player-hud">
             <span>LVL <span id="statLvl">1</span></span>
-            <span>💰 <span id="statGold">350</span> PLN</span>
+            <span>💰 <span id="statGold">0</span></span>
             <span>⚡ <span id="statEnergy">100</span></span>
         </div>
     </header>
 
+    <div id="toast-container"></div>
+
+    <!-- MODAL SYSTEM -->
+    <div id="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-title" id="modalTitle">Tytuł Modala</div>
+            <input type="text" id="modalInput" placeholder="Wpisz wartość..." />
+            <div class="modal-buttons">
+                <button class="btn btn-secondary" onclick="closeModal()">ANULUJ</button>
+                <button class="btn" id="modalConfirmBtn">ZATWIERDŹ</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 1. PORTAL (FEED & SOCIAL) -->
     <div id="screen-portal" class="screen active">
         <div class="card" style="border-color: var(--accent-green);">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.7rem; color: var(--accent-green); margin-top:0;">GEOVERSE CENTRAL PORTAL</h3>
-            <p style="font-size: 0.7rem; color: var(--text-muted);">Hybrydowy ekosystem MMO, Pokémon GO i The Sims. Realne zakupy, praca i architektura miast połączone w jednym świecie.</p>
+            <h3 style="color: var(--accent-green);">CENTRALA ŚWIATA</h3>
+            <p>Hybrydowy ekosystem Phygital. Twoje cyfrowe alter ego łączy się tu z rynkiem pracy, rozrywką i realnymi zakupami.</p>
         </div>
 
         <div id="portalFeed">
-            <div class="feed-item">
-                <div class="feed-header"><span>CASTORAMA ŁÓDŹ</span>[span_0](start_span)[span_0](end_span)<span>[EVENT]</span></div>
-                <p class="feed-body">Trwa gigantyczny event budowlany w strefie Łódź Centrum. Skanuj paragony materiałów budowlanych, by zdobyć unikalny bonus budowniczy (+30% do stawiania baz).</p>
-            </div>
-            <div class="feed-item">
-                <div class="feed-header"><span>MANUFAKTURA</span>[span_1](start_span)[span_1](end_span)<span>[MARKET]</span></div>
-                <p class="feed-body">Otwarto strefę handlową wirtualnych ubrań marek partnerskich. Sprawdź szafę awatara, aby przymierzyć najnowsze kolekcje.</p>
-            </div>
+            <!-- Feed generowany dynamicznie -->
         </div>
-        <button class="btn" onclick="addNewFeedPost()">+ NAPISZ NA KRONICE ŚWIATA</button>
+        <button class="btn" onclick="openPostModal()">+ DODAJ WPIS DO KRONIKI</button>
     </div>
 
     <!-- 2. POSTAĆ / SIMS STYLE -->
     <div id="screen-profile" class="screen">
         <div class="card">
+            <h3 style="color: var(--accent-green);">KREACJA AWATARA</h3>
             <div class="avatar-container">
-                <div class="avatar-box" id="avatarDisplay">👷‍♂️</div>
+                <div class="avatar-box" id="avatarDisplay">🧑‍💻</div>
                 <div class="avatar-info">
-                    <h3 id="profileNameDisplay">Krzysztof</h3>
-                    <p id="profileClassDisplay">Fachowiec (Castorama Team)</p>
+                    <h3 id="profileNameDisplay" style="font-family: 'Press Start 2P', cursive;">Nowy Gracz</h3>
+                    <p id="profileClassDisplay">Wybierz ścieżkę kariery</p>
                 </div>
             </div>
             
-            <label>Pseudonim Awatara</label>
-            <input type="text" id="inputName" value="Krzysztof Budowlaniec" />
+            <label>Identyfikator (Nick)</label>
+            <input type="text" id="inputName" placeholder="Wpisz swój nick..." />
 
-            <label>Klasa Postaci / Ścieżka</label>
-            <select id="inputAvatarType" onchange="updateAvatarBase()">
+            <label>Profesja (Klasa postaci)</label>
+            <select id="inputAvatarType" onchange="updateAvatarPreview()">
                 <option value="🧑‍💼|Inwestor Korporacyjny|👔">Inwestor Korporacyjny</option>
-                <option value="👷‍♂️|Fachowiec / Remonty|🦺" selected>Fachowiec / Remonty</option>
+                <option value="👷‍♂️|Fachowiec / Remonty|🦺">Fachowiec / Remonty</option>
                 <option value="🏃‍♀️|Aktywny Mieszkaniec|👟">Aktywny Mieszkaniec</option>
+                <option value="👨‍💻|Cyber Tech|💻">Cyber Tech / IT</option>
             </select>
 
-            <button class="btn" onclick="saveAndEnterWorld()">ZAPISZ I WEJDŹ DO GRY</button>
+            <button class="btn" onclick="saveProfile()">ZAPISZ PROFIL DO BAZY</button>
+            <button class="btn btn-secondary btn-danger" style="margin-top: 10px; font-size: 0.5rem;" onclick="resetAccount()">⚠️ ZRESETUJ POSTAĆ</button>
         </div>
 
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.7rem; color: var(--accent-gold); margin-top:0;">STATYSTYKI ALTER EGO</h3>
-            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">🛠️ Siła Remontowa: 145 pts</p>
-            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 4px;">🏃‍♂️ Mobilność GPS: Poziom 2</p>
-            <p style="font-size: 0.7rem; color: var(--text-muted); margin-bottom: 0;">🌟 Reputacja w Mieście: Szanowany Fachowiec</p>
+            <h3 style="color: var(--accent-gold);">STATYSTYKI RPG</h3>
+            <p style="color: #fff; margin-bottom: 6px;">Doświadczenie: <span id="statExp" style="color: var(--accent-gold);">0</span> / 500</p>
+            <div style="width: 100%; background: #121622; height: 10px; border-radius: 5px; overflow: hidden; margin-bottom: 10px; border: 1px solid var(--panel-border);">
+                <div id="expBar" style="width: 0%; height: 100%; background: var(--accent-gold); transition: 0.4s;"></div>
+            </div>
+            <p>🛠️ Reputacja: Lokalny Gracz</p>
+            <p>🏃‍♂️ Mobilność: Moduł Biegacza</p>
         </div>
     </div>
 
     <!-- 3. SZAFA & EKWIPUNEK -->
     <div id="screen-wardrobe" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.7rem; color: var(--accent-pink); margin-top:0;">CYFROWA SZAFFA</h3>
-            <p style="font-size: 0.68rem; color: var(--text-muted);">Przedmioty odblokowane z prawdziwych sklepów partnerskich.</p>
+            <h3 style="color: var(--accent-pink);">CYFROWA SZAFFA</h3>
+            <p>Ubiór wpływa na Twoje statystyki w strefach miejskich. Skanuj paragony, aby odblokować cyfrowe odpowiedniki (Digital Twins).</p>
             <div class="inventory-grid" id="inventoryContainer"></div>
         </div>
-        <button class="btn btn-secondary" onclick="scanReceiptQR()">📷 ZESKANUJ PARAGON ZE SKLEPU</button>
+        <button class="btn btn-secondary" onclick="openScannerModal()">📷 SKANER PARAGONÓW (Phygital)</button>
     </div>
 
-    <!-- 4. MAPA GPS (POKEMON GO STYLE) -->
+    <!-- 4. MAPA GPS (LEAFLET) -->
     <div id="screen-map" class="screen">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-            <span id="mapUserLabel" style="font-size:0.58rem; color:var(--accent-green); font-family:'Press Start 2P';">Chunk #404 / Łódź[span_2](start_span)[span_2](end_span)</span>
-            <span style="font-size:0.58rem; color:var(--accent-pink);">GPS LIVE 📡</span>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px;">
+            <span style="font-size:0.55rem; color:var(--accent-green); font-family:'Press Start 2P', cursive;">GEO-RADAR</span>
+            <span style="font-size:0.55rem; color:var(--accent-pink); font-family:'Press Start 2P', cursive;" id="gpsStatus">📡 Łączenie...</span>
         </div>
-        <div id="map-view">
-            <div class="radar-wave"></div>
-            <div style="position: absolute; top: 8px; left: 8px; font-size: 0.58rem; color: var(--text-muted); text-align: left;">
-                📍 Skan: <span id="gpsStatus" style="color: var(--accent-green);">Aktywny</span>
-            </div>
-            
-            <div class="map-pin" style="top: 20%; left: 10%; border-color: var(--accent-gold);" onclick="interactWithNode('Castorama - Strefa Budowy')">🏗️ Castorama</div>
-            <div class="map-pin" style="bottom: 15%; right: 10%; border-color: var(--accent-pink);" onclick="interactWithNode('Manufaktura - Strefa Handlu')">🛍️ Manufaktura</div>
-            <div class="map-pin" style="top: 55%; left: 22%;" onclick="interactWithNode('Marek (Fachowiec) - Zlecenie')">🧑‍🔧 Marek</div>
-            
-            <div id="myMapPin" class="map-pin player" style="top: 42%; left: 42%;">👷‍♂️</div>
+        <div id="map-view"></div>
+        <div class="card" style="padding: 10px; margin-top: 10px;">
+            <p style="font-size: 0.65rem; text-align:center; margin:0;" id="currentOutfitLabel">Aktywny set: Brak</p>
         </div>
-        <p style="font-size: 0.62rem; text-align:center; color: var(--text-muted);" id="currentOutfitLabel">Aktywny ubiór: Kombinezon Roboczy (Castorama)</p>
     </div>
 
-    <!-- 5. SIMS STYLE BAZA / BUDOWLANKA -->
+    <!-- 5. DOM / HOUSING -->
     <div id="screen-housing" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.7rem; color: var(--accent-gold); margin-top:0;">TOWARZYSTWO / DOMOSTWO</h3>
-            <p style="font-size: 0.68rem; color: var(--text-muted);">Zbuduj swoją bazę na mapie GeoVerse z materiałów zdobytych w realnym świecie.</p>
-            <div class="build-grid">
-                <div class="build-slot active" onclick="buildFurniture(1)">🛏️<span style="font-size:0.45rem; font-family:'Press Start 2P'; margin-top:4px;">Łóżko</span></div>
-                <div class="build-slot active" onclick="buildFurniture(2)">🖥️<span style="font-size:0.45rem; font-family:'Press Start 2P'; margin-top:4px;">Komputer</span></div>
-                <div class="build-slot" onclick="buildFurniture(3)">➕<span style="font-size:0.45rem; font-family:'Press Start 2P'; margin-top:4px;">Wolne</span></div>
+            <h3 style="color: var(--accent-gold);">BAZA GŁÓWNA</h3>
+            <p>Rozbudowuj swój dom za surowce z prawdziwych sklepów (np. Castorama). Daje to pasywną regenerację energii.</p>
+            <div class="build-grid" id="housingGrid">
+                <!-- Generowane przez JS -->
             </div>
         </div>
-        <button class="btn btn-blue" onclick="craftMaterials()">⚒️ CRAFTING SUPROWCÓW Z PARAGONÓW</button>
+        <button class="btn btn-blue" onclick="craftMaterials()">⚒️ CRAFTING MATERIAŁÓW (Koszt: 50 PLN)</button>
     </div>
 
-    <!-- 6. ZLECENIA / TIBIA MARKET -->
+    <!-- 6. ZLECENIA -->
     <div id="screen-quests" class="screen">
         <div class="card">
-            <h3 style="font-family: 'Press Start 2P'; font-size: 0.7rem; color: var(--accent-gold); margin-top:0;">GIEŁDA ZLECEŃ TIBIA-STYLE</h3>
+            <h3 style="color: var(--accent-gold);">GIEŁDA ZLECEŃ</h3>
+            <p>Podejmuj się zadań od marek partnerskich lub innych graczy w Twojej strefie.</p>
             <div id="questList">
-                <div class="quest-item">
-                    <h4>Remont Łazienki - ul. Piotrkowska</h4>
-                    <p>Wymagane materiały z Castoramy. Nagroda: 💰 1200 PLN + 300 EXP</p>
-                    <button class="btn" style="padding: 8px; font-size: 0.48rem;" onclick="completeQuest(1200, 300, 'Remont ul. Piotrkowska')">WYKONAJ ZLECENIE</button>
-                </div>
+                <!-- Generowane przez JS -->
             </div>
         </div>
-        <button class="btn" onclick="addNewQuest()">+ DODAJ OGŁOSZENIE NA GIEŁDĘ</button>
+        <button class="btn" onclick="openQuestModal()">+ WYSTAW ZLECENIE (Społeczność)</button>
     </div>
 
-    <!-- DOLNA NAWIGACJA PORTALU -->
+    <!-- NAWIGACJA -->
     <nav>
-        <button id="nav-portal" class="active" onclick="switchScreen('screen-portal', this)">PORTAL</button>
-        <button id="nav-profile" onclick="switchScreen('screen-profile', this)">POSTAĆ</button>
-        <button id="nav-wardrobe" onclick="switchScreen('screen-wardrobe', this)">SZAFA</button>
-        <button id="nav-map" onclick="switchScreen('screen-map', this)">MAPA</button>
-        <button id="nav-housing" onclick="switchScreen('screen-housing', this)">DOM</button>
-        <button id="nav-quests" onclick="switchScreen('screen-quests', this)">ZLECENIA</button>
+        <button id="nav-portal" class="active" onclick="switchScreen('screen-portal', this)"><i>🌐</i>PORTAL</button>
+        <button id="nav-profile" onclick="switchScreen('screen-profile', this)"><i>🧑</i>POSTAĆ</button>
+        <button id="nav-wardrobe" onclick="switchScreen('screen-wardrobe', this)"><i>👕</i>SZAFA</button>
+        <button id="nav-map" onclick="switchScreen('screen-map', this)"><i>📍</i>MAPA</button>
+        <button id="nav-housing" onclick="switchScreen('screen-housing', this)"><i>🏠</i>BAZA</button>
+        <button id="nav-quests" onclick="switchScreen('screen-quests', this)"><i>📜</i>MISJE</button>
     </nav>
 
     <script>
-        let player = {
-            name: "Krzysztof Budowlaniec",
-            icon: "👷‍♂️",
-            className: "Fachowiec (Castorama)",
-            equipped: "Kombinezon Roboczy (Castorama)",
-            gold: 350,
-            lvl: 1,
-            exp: 0,
-            energy: 100
+        /* =======================================================================
+           1. ZARZĄDZANIE STANEM (LOCAL STORAGE)
+        ======================================================================== */
+        const STORAGE_KEY = 'geoverse_v1_data';
+        
+        const defaultState = {
+            player: {
+                name: "Nowy Gracz",
+                icon: "🧑‍💻",
+                className: "Cyber Tech",
+                equipped: null,
+                gold: 500,
+                lvl: 1,
+                exp: 0,
+                energy: 100,
+                typeValue: "👨‍💻|Cyber Tech|💻"
+            },
+            inventory: [
+                { name: "Koszulka Startowa", icon: "👕" },
+                { name: "Trampki Basic", icon: "👟" }
+            ],
+            housing: [
+                { id: 1, name: "Wolne", icon: "➕" },
+                { id: 2, name: "Wolne", icon: "➕" },
+                { id: 3, name: "Wolne", icon: "➕" }
+            ],
+            feed: [
+                { author: "SYSTEM", tag: "INFO", text: "Zainicjowano połączenie z serwerem GeoVerse. Zaktualizuj swój profil w zakładce POSTAĆ." },
+                { author: "CASTORAMA", tag: "EVENT", text: "Kup farbę, zeskanuj paragon i odbierz unikalny pędzel architekta do swojej cyfrowej bazy!" }
+            ],
+            quests: [
+                { id: 1, title: "Szkolenie BHP", desc: "Zamelduj się w strefie startowej i ukończ profil.", rewardGold: 200, rewardExp: 150 }
+            ]
         };
 
-        let inventory = [
-            { name: "Kombinezon Roboczy (Castorama)", icon: "🦺" },
-            { name: "Kurtka Skórzana (Manufaktura)", icon: "🧥" },
-            { name: "Sneakersy Air (Deichmann)", icon: "👟" }
-        ];
+        let appState = JSON.parse(localStorage.getItem(STORAGE_KEY)) || JSON.parse(JSON.stringify(defaultState));
 
-        function switchScreen(screenId, btnElement) {
-            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-
-            document.getElementById(screenId).classList.add('active');
-            if(btnElement) btnElement.classList.add('active');
-
-            if(screenId === 'screen-wardrobe') renderInventory();
-            if(screenId === 'screen-map') initGPSRadar();
+        function saveState() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+            updateHUD();
         }
 
-        function updateAvatarBase() {
-            let val = document.getElementById('inputAvatarType').value.split('|');
-            player.icon = val[0];
-            player.className = val[1];
-            document.getElementById('avatarDisplay').innerText = player.icon;
-            document.getElementById('profileClassDisplay').innerText = player.className;
+        function resetAccount() {
+            if(confirm("Czy na pewno chcesz skasować CAŁY postęp? Tej operacji nie można cofnąć.")) {
+                localStorage.removeItem(STORAGE_KEY);
+                location.reload();
+            }
         }
 
-        function saveAndEnterWorld() {
-            player.name = document.getElementById('inputName').value;
-            document.getElementById('profileNameDisplay').innerText = player.name;
-            document.getElementById('myMapPin').innerText = player.icon;
-            switchScreen('screen-map', document.getElementById('nav-map'));
+        /* =======================================================================
+           2. SYSTEM POWIADOMIEŃ I MODALI (UI/UX)
+        ======================================================================== */
+        function showToast(message, type = 'info', icon = 'ℹ️') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<span style="font-size: 1.2rem;">${icon}</span> <span>${message}</span>`;
+            
+            container.appendChild(toast);
+            
+            // Wymuszenie reflow dla animacji CSS
+            void toast.offsetWidth; 
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
         }
 
+        let currentModalCallback = null;
+        
+        function openModal(title, placeholder, callback) {
+            document.getElementById('modalTitle').innerText = title;
+            document.getElementById('modalInput').value = '';
+            document.getElementById('modalInput').placeholder = placeholder;
+            document.getElementById('modal-overlay').classList.add('show');
+            document.getElementById('modalInput').focus();
+            currentModalCallback = callback;
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').classList.remove('show');
+            currentModalCallback = null;
+        }
+
+        document.getElementById('modalConfirmBtn').addEventListener('click', () => {
+            const val = document.getElementById('modalInput').value.trim();
+            if (val && currentModalCallback) {
+                currentModalCallback(val);
+                closeModal();
+            } else {
+                showToast("Wprowadź prawidłową wartość!", "error", "❌");
+            }
+        });
+
+        /* =======================================================================
+           3. GŁÓWNA LOGIKA APLIKACJI (RENDEROWANIE I AKCJE)
+        ======================================================================== */
+        
+        function initApp() {
+            updateHUD();
+            renderProfile();
+            renderFeed();
+            renderInventory();
+            renderHousing();
+            renderQuests();
+        }
+
+        function updateHUD() {
+            document.getElementById('statLvl').innerText = appState.player.lvl;
+            document.getElementById('statGold').innerText = appState.player.gold;
+            document.getElementById('statEnergy').innerText = appState.player.energy;
+            
+            document.getElementById('statExp').innerText = appState.player.exp;
+            const expPercent = Math.min((appState.player.exp / 500) * 100, 100);
+            document.getElementById('expBar').style.width = `${expPercent}%`;
+            
+            const eqLabel = appState.player.equipped ? appState.player.equipped : "Brak";
+            document.getElementById('currentOutfitLabel').innerText = `Aktywny set: ${eqLabel}`;
+        }
+
+        // --- ZAKŁADKA: PORTAL ---
+        function renderFeed() {
+            const container = document.getElementById('portalFeed');
+            container.innerHTML = '';
+            // Renderuj od najnowszych
+            [...appState.feed].reverse().forEach(post => {
+                container.innerHTML += `
+                    <div class="feed-item">
+                        <div class="feed-header"><span>${post.author}</span> <span>[${post.tag}]</span></div>
+                        <p class="feed-body">${post.text}</p>
+                    </div>
+                `;
+            });
+        }
+
+        function openPostModal() {
+            openModal("NOWY WPIS", "O czym myślisz?", (text) => {
+                appState.feed.push({ author: appState.player.name.toUpperCase(), tag: "SPOŁECZNOŚĆ", text: text });
+                saveState();
+                renderFeed();
+                showToast("Wpis opublikowany!", "info", "✅");
+            });
+        }
+
+        // --- ZAKŁADKA: POSTAĆ ---
+        function updateAvatarPreview() {
+            const val = document.getElementById('inputAvatarType').value.split('|');
+            document.getElementById('avatarDisplay').innerText = val[0];
+            document.getElementById('profileClassDisplay').innerText = val[1];
+        }
+
+        function renderProfile() {
+            document.getElementById('inputName').value = appState.player.name;
+            document.getElementById('inputAvatarType').value = appState.player.typeValue;
+            document.getElementById('profileNameDisplay').innerText = appState.player.name;
+            updateAvatarPreview();
+        }
+
+        function saveProfile() {
+            const name = document.getElementById('inputName').value.trim();
+            if(!name) return showToast("Nick nie może być pusty!", "error", "❌");
+            
+            const val = document.getElementById('inputAvatarType').value.split('|');
+            appState.player.name = name;
+            appState.player.icon = val[0];
+            appState.player.className = val[1];
+            appState.player.typeValue = document.getElementById('inputAvatarType').value;
+            
+            document.getElementById('profileNameDisplay').innerText = name;
+            saveState();
+            showToast("Zapisano DNA awatara!", "info", "🧬");
+            
+            // Zaktualizuj marker na mapie jeśli istnieje
+            if (userMarker) {
+                const retroIcon = L.divIcon({
+                    className: 'custom-player-marker',
+                    html: `<div style="background:#0e111a; border:2px solid #00ffcc; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow: 0 0 15px #00ffcc;">${appState.player.icon}</div>`,
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                });
+                userMarker.setIcon(retroIcon);
+            }
+        }
+
+        function addExp(amount) {
+            appState.player.exp += amount;
+            if(appState.player.exp >= 500) {
+                appState.player.lvl++;
+                appState.player.exp -= 500;
+                showToast(`AWANS NA ${appState.player.lvl} POZIOM!`, "warning", "⭐");
+            }
+        }
+
+        // --- ZAKŁADKA: SZAFA ---
         function renderInventory() {
-            let container = document.getElementById('inventoryContainer');
-            if(!container) return;
+            const container = document.getElementById('inventoryContainer');
             container.innerHTML = "";
-            inventory.forEach(item => {
-                let isEquipped = (player.equipped === item.name);
+            appState.inventory.forEach(item => {
+                const isEquipped = (appState.player.equipped === item.name);
                 container.innerHTML += `
                     <div class="item-card ${isEquipped ? 'equipped' : ''}" onclick="equipItem('${item.name}')">
-                        <div style="font-size: 1.8rem;">${item.icon}</div>
+                        <div style="font-size: 2.2rem; margin-bottom: 5px;">${item.icon}</div>
                         <h4>${item.name}</h4>
-                        <p style="font-size:0.55rem; color:#888; margin:3px 0 0 0;">${isEquipped ? '★ ZAŁOŻONE' : 'Załóż'}</p>
+                        <p style="font-size:0.55rem; color:${isEquipped ? 'var(--accent-green)' : '#888'}; margin:0;">
+                            ${isEquipped ? '★ ZAŁOŻONE' : 'Załóż item'}
+                        </p>
                     </div>
                 `;
             });
         }
 
         function equipItem(itemName) {
-            player.equipped = itemName;
+            appState.player.equipped = itemName;
+            saveState();
             renderInventory();
-            document.getElementById('currentOutfitLabel').innerText = `Aktywny ubiór: ${itemName}`;
-            alert(`Awatar przebrał się w: ${itemName}`);
+            showToast(`Wyposażono: ${itemName}`, "info", "👕");
         }
 
-        function scanReceiptQR() {
-            let code = prompt("Skaner Phygital: Wpisz nazwę zakupionego produktu (np. Wkrętarka Castorama, Buty Nike):", "Wkrętarka akumulatorowa");
-            if(code) {
-                inventory.push({ name: code, icon: "🎁" });
+        function openScannerModal() {
+            openModal("SKANER PHYGI-TAL", "Wpisz kod z paragonu (np. Wiertarka)", (code) => {
+                const icons = ["🎁", "🛍️", "🔧", "👟", "🧢"];
+                const rIcon = icons[Math.floor(Math.random() * icons.length)];
+                appState.inventory.push({ name: code, icon: rIcon });
+                saveState();
                 renderInventory();
-                alert(`Paragon zweryfikowany! Do szafy dodano unikalny item: ${code}`);
-            }
+                showToast(`Dodano przedmot cyfrowy: ${code}`, "warning", "✨");
+                addExp(50);
+                saveState();
+            });
         }
 
-        function interactWithNode(nodeName) {
-            alert(`Strefa Phygital: ${nodeName}\nWchodzisz w interakcję ze światem gry. Możesz tutaj handlować i zdobywać unikalne zadania.`);
-        }
-
-        function completeQuest(rewardGold, rewardExp, questTitle) {
-            player.gold += rewardGold;
-            player.exp += rewardExp;
-            
-            if(player.exp >= 500) {
-                player.lvl++;
-                player.exp = 0;
-                alert(`AWANS NA ${player.lvl} POZIOM! Gratulacje!`);
-            } else {
-                alert(`Zlecenie "${questTitle}" ukończone!\nOtrzymano: +${rewardGold} PLN oraz +${rewardExp} EXP.`);
-            }
-
-            document.getElementById('statGold').innerText = player.gold;
-            document.getElementById('statLvl').innerText = player.lvl;
-        }
-
-        function addNewQuest() {
-            let title = prompt("Tytuł nowego ogłoszenia na giełdzie:");
-            let reward = prompt("Nagroda w PLN:");
-            if(title && reward) {
-                let list = document.getElementById('questList');
-                list.innerHTML = `
-                    <div class="quest-item">
-                        <h4>${title}</h4>
-                        <p>Zlecenie społecznościowe. Nagroda: 💰 ${reward} PLN + 150 EXP</p>
-                        <button class="btn" style="padding: 8px; font-size: 0.48rem;" onclick="completeQuest(${reward}, 150, '${title}')">WYKONAJ ZLECENIE</button>
+        // --- ZAKŁADKA: BAZA / HOUSING ---
+        function renderHousing() {
+            const container = document.getElementById('housingGrid');
+            container.innerHTML = "";
+            appState.housing.forEach((slot, index) => {
+                const isActive = slot.name !== "Wolne";
+                container.innerHTML += `
+                    <div class="build-slot ${isActive ? 'active' : ''}" onclick="openBuildModal(${index})">
+                        <div>${slot.icon}</div>
+                        <span style="font-size:0.45rem; font-family:'Press Start 2P', cursive; margin-top:8px; color:${isActive ? 'var(--accent-gold)' : 'var(--text-muted)'}">${slot.name}</span>
                     </div>
-                ` + list.innerHTML;
-                alert("Ogłoszenie opublikowane na żywej tablicy portalu!");
-            }
+                `;
+            });
         }
 
-        function addNewFeedPost() {
-            let postText = prompt("Wpis do kroniki świata GeoVerse:");
-            if(postText) {
-                let feed = document.getElementById('portalFeed');
-                feed.innerHTML = `
-                    <div class="feed-item">
-                        <div class="feed-header"><span>${player.name.toUpperCase()}</span> <span>[SPOŁECZNOŚĆ]</span></div>
-                        <p class="feed-body">${postText}</p>
-                    </div>
-                ` + feed.innerHTML;
-                alert("Wpis trafił do głównego kanału portalu!");
-            }
-        }
-
-        function buildFurniture(slotId) {
-            let item = prompt("Co chcesz postawić w tym slocie bazy (np. Sofa, Stół warsztatowy, Roślina):", "Stół warsztatowy");
-            if(item) {
-                alert(`Pomyślnie umeblowano slot nr ${slotId} obiektem: ${item}! Zwiększasz komfort awatara.`);
-            }
+        function openBuildModal(index) {
+            openModal("BUDOWA BAZY", "Co postawić? (Sofa, Stół, itp.)", (itemName) => {
+                if(appState.player.gold < 100) {
+                    return showToast("Brakuje środków (min. 100 PLN)", "error", "💰");
+                }
+                appState.player.gold -= 100;
+                appState.housing[index] = { name: itemName, icon: "🛋️" };
+                saveState();
+                renderHousing();
+                showToast(`Umeblowano: ${itemName} (-100 PLN)`, "info", "🏗️");
+                addExp(100);
+                saveState();
+            });
         }
 
         function craftMaterials() {
-            alert("Przetworzono surowce z zeskanowanych paragonów! Otrzymano +50 punktów materiałów budowlanych.");
+            if(appState.player.gold < 50) return showToast("Brakuje funduszy!", "error", "❌");
+            appState.player.gold -= 50;
+            addExp(30);
+            saveState();
+            showToast("Przetworzono paragony! Zyskano 30 EXP.", "info", "♻️");
         }
 
-        function initGPSRadar() {
-            let status = document.getElementById('gpsStatus');
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    pos => status.innerText = `GPS OK (${pos.coords.latitude.toFixed(2)}, ${pos.coords.longitude.toFixed(2)})`,
-                    () => status.innerText = "Tryb strefowy (Łódź)"
-                );
+        // --- ZAKŁADKA: ZLECENIA ---
+        function renderQuests() {
+            const container = document.getElementById('questList');
+            container.innerHTML = "";
+            if(appState.quests.length === 0) {
+                container.innerHTML = "<p style='text-align:center;'>Brak aktywnych zleceń w okolicy.</p>";
+                return;
+            }
+            appState.quests.forEach(q => {
+                container.innerHTML += `
+                    <div class="quest-item">
+                        <h4>${q.title}</h4>
+                        <p>${q.desc}</p>
+                        <p style="font-size: 0.65rem; color:var(--accent-green); margin-bottom: 10px;">Nagroda: 💰 ${q.rewardGold} PLN | ⭐ ${q.rewardExp} EXP</p>
+                        <button class="btn btn-sm" onclick="completeQuest(${q.id})">ZAKOŃCZ ZLECENIE</button>
+                    </div>
+                `;
+            });
+        }
+
+        function openQuestModal() {
+            openModal("NOWE ZLECENIE", "Tytuł ogłoszenia...", (title) => {
+                const newQuest = {
+                    id: Date.now(),
+                    title: title,
+                    desc: "Zlecenie dodane przez gracza. Wymagany kontakt w świecie rzeczywistym.",
+                    rewardGold: 100,
+                    rewardExp: 50
+                };
+                appState.quests.push(newQuest);
+                saveState();
+                renderQuests();
+                showToast("Ogłoszenie dodane do giełdy", "info", "📜");
+            });
+        }
+
+        function completeQuest(id) {
+            const questIndex = appState.quests.findIndex(q => q.id === id);
+            if(questIndex > -1) {
+                const q = appState.quests[questIndex];
+                appState.player.gold += q.rewardGold;
+                addExp(q.rewardExp);
+                appState.quests.splice(questIndex, 1);
+                saveState();
+                renderQuests();
+                showToast(`Ukończono: ${q.title}!`, "warning", "🏆");
             }
         }
+
+        /* =======================================================================
+           4. SYSTEM MAPY I LOKALIZACJI (LEAFLET GPS)
+        ======================================================================== */
+        let map = null;
+        let userMarker = null;
+        let mapInitialized = false;
+
+        function switchScreen(screenId, btnElement) {
+            // Animacja zmiany widoku
+            document.querySelectorAll('.screen').forEach(s => {
+                s.classList.remove('active');
+            });
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+
+            document.getElementById(screenId).classList.add('active');
+            if(btnElement) btnElement.classList.add('active');
+
+            // Odświeżanie danych na widokach
+            if(screenId === 'screen-wardrobe') renderInventory();
+            if(screenId === 'screen-portal') renderFeed();
+            if(screenId === 'screen-profile') renderProfile();
+            
+            // Specjalna obsługa mapy
+            if(screenId === 'screen-map') {
+                setTimeout(() => {
+                    if (!mapInitialized) {
+                        initLeafletMap();
+                        mapInitialized = true;
+                    } else {
+                        map.invalidateSize();
+                    }
+                }, 100); // Małe opóźnienie na render DOM
+            }
+        }
+
+        function initLeafletMap() {
+            const statusEl = document.getElementById('gpsStatus');
+            const defaultPos = [51.7592, 19.4559]; // Centrum Łodzi jako fallback
+
+            map = L.map('map-view', { zoomControl: false, attributionControl: false }).setView(defaultPos, 14);
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19
+            }).addTo(map);
+
+            if (navigator.geolocation) {
+                navigator.geolocation.watchPosition(
+                    position => {
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+                        statusEl.innerText = "GPS OK 🟢";
+                        statusEl.style.color = "var(--accent-green)";
+                        
+                        updatePlayerMarker(lat, lng);
+                    },
+                    error => {
+                        statusEl.innerText = "BŁĄD GPS 🔴 (Symulacja)";
+                        statusEl.style.color = "var(--danger)";
+                        updatePlayerMarker(defaultPos[0], defaultPos[1]);
+                    },
+                    { enableHighAccuracy: true, maximumAge: 10000, timeout: 5000 }
+                );
+            } else {
+                statusEl.innerText = "BRAK GPS 🔴";
+                updatePlayerMarker(defaultPos[0], defaultPos[1]);
+            }
+        }
+
+        function updatePlayerMarker(lat, lng) {
+            if (!userMarker) {
+                const retroIcon = L.divIcon({
+                    className: 'custom-player-marker',
+                    html: `<div style="background:#0e111a; border:2px solid #00ffcc; border-radius:50%; width:40px; height:40px; display:flex; align-items:center; justify-content:center; font-size:20px; box-shadow: 0 0 15px #00ffcc; transition: 0.3s;">${appState.player.icon}</div>`,
+                    iconSize: [40, 40],
+                    iconAnchor: [20, 20]
+                });
+                userMarker = L.marker([lat, lng], { icon: retroIcon }).addTo(map);
+                userMarker.bindPopup(`<h3>${appState.player.name}</h3><p style="color:#888;">${appState.player.className}</p>`);
+                map.setView([lat, lng], 15);
+                addNearbyNodes(lat, lng);
+            } else {
+                userMarker.setLatLng([lat, lng]);
+            }
+        }
+
+        function addNearbyNodes(baseLat, baseLng) {
+            const nodes = [
+                { name: "Castorama", lat: baseLat + 0.003, lng: baseLng + 0.004, icon: "🏗️", desc: "Zeskanuj paragon materiałów!" },
+                { name: "Manufaktura", lat: baseLat - 0.004, lng: baseLng - 0.003, icon: "🛍️", desc: "Ubrania i marki partnerskie." },
+                { name: "Zlecenie Gracza", lat: baseLat + 0.001, lng: baseLng - 0.005, icon: "🧑‍🔧", desc: "NPC poszukuje fachowca." }
+            ];
+
+            nodes.forEach(node => {
+                const nodeIcon = L.divIcon({
+                    html: `<div style="background:#0e111a; border:1px solid #ff00ff; border-radius:6px; padding:4px 6px; font-family:'Press Start 2P', cursive; font-size:8px; color:#fff; white-space:nowrap; box-shadow: 0 0 8px rgba(255,0,255,0.5);">${node.icon} ${node.name}</div>`,
+                    iconSize: [100, 30],
+                    iconAnchor: [50, 15]
+                });
+                const marker = L.marker([node.lat, node.lng], { icon: nodeIcon }).addTo(map);
+                marker.bindPopup(`
+                    <h3 style="color:var(--accent-pink);">${node.name}</h3>
+                    <p>${node.desc}</p>
+                    <button onclick="mapInteract('${node.name}')" class="btn btn-sm" style="width:100%; margin-top:5px;">WEJDŹ DO STREFY</button>
+                `);
+            });
+        }
+
+        function mapInteract(nodeName) {
+            showToast(`Wkraczasz do: ${nodeName}`, "warning", "📍");
+            setTimeout(() => { map.closePopup(); }, 1500);
+        }
+
+        // --- INICJALIZACJA PO ZAŁADOWANIU STRONY ---
+        window.onload = initApp;
+
     </script>
 </body>
 </html>
