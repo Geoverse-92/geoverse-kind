@@ -289,3 +289,67 @@ app.use((req, res, next) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`GeoVerse premium backend listening on http://0.0.0.0:${PORT}`);
 });
+import express from 'express';
+import cors from 'cors';
+import Database from 'better-sqlite3';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Inicjalizacja bazy danych SQLite
+const db = new Database('geoverse.db');
+
+app.use(cors());
+app.use(express.json());
+
+// Tworzenie tabeli na dane gracza, ubrania i posty
+db.exec(`
+  CREATE TABLE IF NOT EXISTS game_state (
+    id INTEGER PRIMARY KEY DEFAULT 1,
+    data TEXT NOT NULL
+  );
+`);
+
+// Endpoint do pobierania stanu gry
+app.get('/api/state', (req, res) => {
+  try {
+    const row = db.prepare('SELECT data FROM game_state WHERE id = 1').get();
+    if (!row) {
+      return res.json({});
+    }
+    res.json(JSON.parse(row.data));
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Endpoint do zapisu stanu gry (XP, zakupy, ekwipunek, wpisy)
+app.post('/api/state', (req, res) => {
+  try {
+    const dataStr = JSON.stringify(req.body);
+    db.prepare(`
+      INSERT INTO game_state (id, data) VALUES (1, ?)
+      ON CONFLICT(id) DO UPDATE SET data = excluded.data
+    `).run(dataStr);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Serwowanie zbudowanego interfejsu (folder dist)
+app.use(express.static(path.join(__dirname, 'dist')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+});
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Serwer GeoVerse działa na porcie ${PORT}`);
+});
+                                                  
